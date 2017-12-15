@@ -22,9 +22,9 @@ function AutoBot(baseCur, tradeCur, tradeWeight, MACDInput, interval) {
 
 module.exports = AutoBot;
 
-AutoBot.prototype.initRedis = function (port) {
+AutoBot.prototype.initRedis = function (port, host) {
 
-    this.caching = RedisClient.createClient(port, "localhost");
+    this.caching = RedisClient.createClient(port, host);
     // this.caching.flushall();
     this.caching.on("error", function (err) {
         console.log(err);
