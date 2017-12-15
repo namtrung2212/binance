@@ -12,6 +12,7 @@ new RedisServer(port).open((err) => {
         bot1.initRedis(port);
         bot1.start();
 
+
         // var bot2 = new AutoBot("USDT", "ETH", 0.5, "5m", 0.5);
         // bot2.initRedis(port);
         // bot2.start();

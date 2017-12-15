@@ -332,6 +332,8 @@ AutoBot.prototype.suggestSellPrice = async function () {
 
 AutoBot.prototype.start = function () {
 
+    console.log("Start : " + this.Symbol + " with WEIGHT = " + this.TradeWeight * 100 + "% & MACD = " + this.MACDInput);
+
     setTimeout(this.timerHandler, 1000 * 60 * this.IntervalMinute, this);
 };
 
