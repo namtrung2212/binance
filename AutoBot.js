@@ -57,7 +57,7 @@ AutoBot.prototype.handler = async function () {
         if (suggest) {
             let newOrder = await this.API.buy(suggest.amount, suggest.price);
 
-            console.log("----------------------------------------------------");
+            console.log("----------------------------------------------------------------------");
             var str = format("[{0} {1}] BUY {2} {3} at {4} {5}/{6}",
                 moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
                 this.BaseCurrency,
@@ -80,7 +80,7 @@ AutoBot.prototype.handler = async function () {
             let newOrder = await this.API.sell(suggest.amount, suggest.price);
 
 
-            console.log("----------------------------------------------------");
+            console.log("----------------------------------------------------------------------");
             var str = format("[{0} {1}] SELL {2} {3} at {4} {5}/{6}",
                 moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
                 this.BaseCurrency,
@@ -182,15 +182,6 @@ AutoBot.prototype.shouldToBUY = async function () {
 
         let result = percent < 0.45;
 
-        if (result) {
-
-            console.log("------- SHOULD BUY -------");
-            console.log("leftAverage = " + leftAverage);
-            console.log("rightAverage = " + rightAverage);
-            console.log("percent = " + percent);
-            console.log("");
-        }
-
         resolve(result);
     });
 };
@@ -252,15 +243,6 @@ AutoBot.prototype.shouldToSELL = async function () {
         let percent = leftAverage / (leftAverage + rightAverage);
 
         let result = percent < 0.45;
-
-        if (result) {
-
-            console.log("------- SHOULD SELL -------");
-            console.log("leftAverage = " + leftAverage);
-            console.log("rightAverage = " + rightAverage);
-            console.log("percent = " + percent);
-            console.log("");
-        }
 
         resolve(result);
     });
