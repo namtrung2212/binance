@@ -16,7 +16,11 @@ caching.flushall();
 const app = express();
 app.get('/balance', function (req, res) {
 
-    API.getBalances("USDT").then(function (balance) {
+    var currency = "USDT";
+    if (req.query.currency)
+        currency = req.query.currency;
+
+    API.getBalances(currency).then(function (balance) {
 
         res.json(balance);
 

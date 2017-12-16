@@ -218,7 +218,7 @@ AutoBot.prototype.shouldToSELL = async function () {
             return;
         }
 
-        // 3 LAN GIAM LIEN TIEP -> SELL
+        // 4 LAN GIAM LIEN TIEP -> SELL
         if ((macd.length - 1) - firstRightIndex > 2) {
             resolve(true);
             return;
