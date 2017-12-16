@@ -30,6 +30,7 @@
   "main": "index.js",
   "scripts": {
     "start": "forever start -l autobot.log  -a index.js",
+    "startall": "npm start && npm run rest && npm run web && npm run viewlog",
     "stop": "forever stopall",
     "viewlog": "tail -f /home/ec2-user/.forever/autobot.log",
     "cleanlog": "rm /home/ec2-user/.forever/autobot.log",
