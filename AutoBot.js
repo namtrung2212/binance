@@ -154,19 +154,19 @@ AutoBot.prototype.shouldToBUY = async function () {
         var lastLeftIndex = firstRightIndex - 1;
         var lastLeft = macd[lastLeftIndex];
 
-        if (macd[lastLeftIndex - 1].histogram > 0 || macd[lastLeftIndex - 2].histogram > 0) {
-            resolve(false);
-            return;
+        var leftAverage = Math.abs(macd[lastLeftIndex].histogram);
+        var count = 1;
+        if (macd[lastLeftIndex - 1].histogram < 0) {
+            leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
+            count++;
         }
-
-        var leftAverage = 0;
-        leftAverage += Math.abs(macd[lastLeftIndex].histogram);
-        leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
-        leftAverage += Math.abs(macd[lastLeftIndex - 2].histogram);
-        leftAverage = leftAverage / 3;
+        if (macd[lastLeftIndex - 2].histogram < 0) {
+            leftAverage += Math.abs(macd[lastLeftIndex - 2].histogram);
+            count++;
+        }
+        leftAverage = leftAverage / count;
 
         var rightAverage = Math.abs(macd[macd.length - 1].histogram);
-
         let percent = leftAverage / (leftAverage + rightAverage);
 
         let result = percent < 0.45;
@@ -215,6 +215,12 @@ AutoBot.prototype.shouldToSELL = async function () {
         }
         if (!firstRight) {
             resolve(false);
+            return;
+        }
+
+        // 3 LAN GIAM LIEN TIEP -> SELL
+        if ((macd.length - 1) - firstRightIndex > 2) {
+            resolve(true);
             return;
         }
 
