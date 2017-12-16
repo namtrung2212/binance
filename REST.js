@@ -33,7 +33,7 @@ app.get('/balance', function (req, res) {
 
 });
 
-app.get('/web/balance', function (req, res) {
+app.get('/webbalance', function (req, res) {
 
     var currency = "USDT";
     if (req.query.currency)
