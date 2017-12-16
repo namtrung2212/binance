@@ -271,12 +271,13 @@ AutoBot.prototype.suggestBuyPrice = async function () {
         }
     }
 
+    var firtPrice = lowestPrice;
     var tradableAmt = 0;
 
-    for (var i = 4; i < 20; i++) {
+    for (var i = 2; i < sellings[i].length; i++) {
 
         let selling = sellings[i];
-        if (selling.price) {
+        if (selling.price && selling.price < 0.95 * firtPrice) {
 
             let remain = (wannaTrade - tradableAmt);
             if (remain <= 0)
@@ -328,13 +329,14 @@ AutoBot.prototype.suggestSellPrice = async function () {
             break;
         }
     }
+    var firtPrice = highestPrice;
 
     var tradableAmt = 0;
 
-    for (var i = 4; i < 20; i++) {
+    for (var i = 2; i < buyings[i].length; i++) {
 
         let buying = buyings[i];
-        if (buying.price) {
+        if (buying.price && buying.price > 0.95 * firtPrice) {
 
             let remain = (wannaTrade - tradableAmt);
             if (remain <= 0)
