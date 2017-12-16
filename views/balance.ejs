@@ -23,16 +23,16 @@
     <p></p>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title text-center">Binance Balance (namtrung2212@gmail.com)</h3>
+            <h31 class="panel-title  text-center">Binance Balance (namtrung2212@gmail.com)</h1>
         </div>
         <div class="panel-body">
             <table class="table table-striped table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col" class="lead text-center">#</th>
-                        <th scope="col" class="lead text-center">Coin</th>
-                        <th scope="col" class="lead text-center">Amount</th>
-                        <th scope="col" class="lead text-center">
+                        <th scope="col" class=" text-center h2 font-weight-bold">#</th>
+                        <th scope="col" class=" text-center h2 font-weight-bold">Coin</th>
+                        <th scope="col" class=" text-center h2 font-weight-bold">Amount</th>
+                        <th scope="col" class=" text-center h2 font-weight-bold">
                             <%= Base %>
                         </th>
                     </tr>
@@ -41,16 +41,16 @@
 
                     <% Trades.forEach((trade, index) => { %>
                         <tr>
-                            <th scope="row" class="text-center">
+                            <th scope="row" class="h2 font-weight-light text-center">
                                 <%= index %>
                             </th>
-                            <td class="lead text-center">
+                            <td class="h2 font-weight-light text-center">
                                 <%= trade.Currency %>
                             </td>
-                            <td class="lead text-right">
+                            <td class="h2 font-weight-light text-right">
                                 <%= trade.Available %>
                             </td>
-                            <td class="lead text-right">
+                            <td class="h2 font-weight-light text-right">
                                 <%= trade.Base %>
                             </td>
                         </tr>
@@ -69,12 +69,12 @@
         </h3>
     </div>
     <div class="row text-center">
-        <h2>
+        <h1>
             <%= Total %>
-        </h2>
-        <h4>
+        </h1>
+        <h2>
             <%= Base %>
-        </h4>
+        </h2>
     </div>
 </body>
 
