@@ -64,7 +64,7 @@ AutoBot.prototype.handler = async function () {
                 .toString();
 
             console.log(str);
-            console.log(JSON.stringify(newOrder));
+            // console.log(JSON.stringify(newOrder));
 
 
         }
@@ -87,7 +87,7 @@ AutoBot.prototype.handler = async function () {
                 .toString();
 
             console.log(str);
-            console.log(JSON.stringify(newOrder));
+            // console.log(JSON.stringify(newOrder));
         }
 
     }
