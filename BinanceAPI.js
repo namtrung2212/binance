@@ -25,6 +25,56 @@ BinanceAPI.prototype.getBalance = async function (currency) {
     });
 };
 
+BinanceAPI.prototype.getBalances = async function (baseCur) {
+
+    return new Promise((resolve) => {
+
+        var _this = this;
+
+        this.binance.balance(async function (balances) {
+
+            var list = [];
+
+            var total = 0;
+            var count = 0;
+
+            for (var currency in balances) {
+
+                if (balances[currency] && balances[currency].available > 0) {
+
+                    let balInBase = (await _this.convertTo(balances[currency].available, currency, "BTC"));
+                    balInBase = (await _this.convertTo(balInBase, "BTC", baseCur));
+
+                    total += parseFloat(balInBase);
+
+                    var obj = {};
+                    obj[currency] = balances[currency].available;
+                    obj.$ = parseFloat(balInBase).toFixed(8);
+
+                    list.push(obj);
+
+                }
+                count++;
+
+                if (count == Object.keys(balances).length) {
+                    resolve({
+                        Total: parseFloat(total).toFixed(8),
+                        Base: baseCur,
+                        Trades: list
+                    });
+                    return;
+                }
+
+            }
+
+        });
+
+    }).catch(error => {
+
+        console.log("error = " + error);
+    });
+};
+
 BinanceAPI.prototype.getTotalBalanceInBase = async function (baseCur) {
 
     return new Promise((resolve) => {
