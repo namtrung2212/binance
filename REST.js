@@ -17,6 +17,8 @@ const app = express();
 
 app.listen(57575);
 
+app.set('view engine', 'ejs');
+
 app.get('/balance', function (req, res) {
 
     var currency = "USDT";
@@ -31,8 +33,6 @@ app.get('/balance', function (req, res) {
 
 });
 
-
-app.set('view engine', 'ejs');
 app.get('/web/balance', function (req, res) {
 
     var currency = "USDT";
