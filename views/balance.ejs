@@ -4,59 +4,77 @@
 <head>
     <meta charset="UTF-8">
     <title>Binance Balance</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
         crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r"
+        crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
         crossorigin="anonymous"></script>
 
 </head>
 
 <body class="container">
 
+    <p></p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title text-center">Binance Balance (namtrung2212@gmail.com)</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="lead text-center">#</th>
+                        <th scope="col" class="lead text-center">Coin</th>
+                        <th scope="col" class="lead text-center">Amount</th>
+                        <th scope="col" class="lead text-center">
+                            <%= Base %>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
 
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Coin</th>
-                <th scope="col">Amount</th>
-                <th scope="col">
-                    <%= Base %>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
+                    <% Trades.forEach((trade, index) => { %>
+                        <tr>
+                            <th scope="row" class="text-center">
+                                <%= index %>
+                            </th>
+                            <td class="lead text-center">
+                                <%= trade.Currency %>
+                            </td>
+                            <td class="lead text-right">
+                                <%= trade.Available %>
+                            </td>
+                            <td class="lead text-right">
+                                <%= trade.Base %>
+                            </td>
+                        </tr>
 
-            <% Trades.forEach((trade, index) => { %>
-                <tr>
-                    <th scope="row">
-                        <%= index %>
-                    </th>
-                    <td>
-                        <%= trade.Currency %>
-                    </td>
-                    <td>
-                        <%= trade.Available %>
-                    </td>
-                    <td>
-                        <%= trade.Base %>
-                    </td>
-                </tr>
+                        <% }) %>
 
-                <% }) %>
+                </tbody>
+            </table>
 
-        </tbody>
-    </table>
+        </div>
+    </div>
 
-    <div class="row">
-        <p class="lead"> Total :
+
+    <div class="row text-center">
+        <h3> Total
+        </h3>
+    </div>
+    <div class="row text-center">
+        <h2>
             <%= Total %>
-                <%= Base %>
-        </p>
+        </h2>
+        <h4>
+            <%= Base %>
+        </h4>
     </div>
 </body>
 
