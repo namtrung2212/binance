@@ -361,5 +361,7 @@ AutoBot.prototype.suggestSellPrice = async function () {
         tradableAmt = wannaTrade;
 
     let result = await this.API.correctTradeOrder(tradableAmt, highestPrice);
+    if (this.TradeCurrency == "BTC" && this.BaseCurrency == "USDT")
+        console.log("SELL order = " + result);
     return result;
 };
