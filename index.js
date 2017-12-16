@@ -8,16 +8,16 @@ var bots = [
     { trade: "BNB", base: "USDT" },
     //  { trade: "XRP", base: "USDT" },
 
-    { trade: "ETH", base: "BTC" },
-    { trade: "LTC", base: "BTC" },
+    // { trade: "ETH", base: "BTC" },
+    // { trade: "LTC", base: "BTC" },
     { trade: "XRP", base: "BTC" },
     { trade: "ETC", base: "BTC" },
-    { trade: "BNB", base: "BTC" },
+    // { trade: "BNB", base: "BTC" },
 
-    { trade: "LTC", base: "ETH" },
+    // { trade: "LTC", base: "ETH" },
     { trade: "XRP", base: "ETH" },
-    { trade: "ETC", base: "ETH" },
-    { trade: "BNB", base: "ETH" }
+    { trade: "ETC", base: "ETH" }
+    //{ trade: "BNB", base: "ETH" }
 
     //  { trade: "XRP", base: "LTC" }
 ];
