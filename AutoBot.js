@@ -6,17 +6,15 @@ var MACD = require('technicalindicators').MACD;
 const RedisClient = require('redis');
 const BinanceAPI = require("./BinanceAPI");
 
-function AutoBot(tradeCur, baseCur, tradeWeight, MACDInput, interval) {
+function AutoBot(tradeCur, baseCur, MACDInput, interval) {
 
     this.BaseCurrency = baseCur;
     this.TradeCurrency = tradeCur;
     this.Symbol = this.TradeCurrency + this.BaseCurrency;
 
-    this.TradeWeight = tradeWeight;
-
     this.MACDInput = MACDInput;
 
-    this.IntervalMinute = interval;
+    this.IntervalMinute = interval / 60;
 
     this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
 
@@ -37,7 +35,7 @@ AutoBot.prototype.initRedis = function (port, host) {
 
 AutoBot.prototype.start = function () {
 
-    console.log("Start : " + this.Symbol + " with WEIGHT = " + this.TradeWeight * 100 + "% & MACD = " + this.MACDInput);
+    console.log("Start : " + this.TradeCurrency + "-" + this.BaseCurrency + " with MACD = " + this.MACDInput);
 
     setTimeout(this.timerHandler, 1000 * 60 * this.IntervalMinute, this);
 };
@@ -62,7 +60,7 @@ AutoBot.prototype.handler = async function () {
                 moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
                 this.BaseCurrency,
                 suggest.amount, this.TradeCurrency,
-                suggest.price, this.TradeCurrency, this.BaseCurrency)
+                suggest.price, this.BaseCurrency, this.TradeCurrency)
                 .toString();
 
             console.log(str);
@@ -85,7 +83,7 @@ AutoBot.prototype.handler = async function () {
                 moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
                 this.BaseCurrency,
                 suggest.amount, this.TradeCurrency,
-                suggest.price, this.TradeCurrency, this.BaseCurrency)
+                suggest.price, this.BaseCurrency, this.TradeCurrency)
                 .toString();
 
             console.log(str);
@@ -122,21 +120,7 @@ AutoBot.prototype.shouldToBUY = async function () {
     return new Promise(async function (resolve) {
 
         let baseBal = await that.API.getBalance(that.BaseCurrency);
-        let tradedBal = await that.API.getBalance(that.TradeCurrency);
-
-        let tradedInBase = await that.API.convertTo(tradedBal, that.TradeCurrency, that.BaseCurrency);
-        let totalInBase = await that.API.getTotalBalanceInBase(that.BaseCurrency);
-
-        let maxTradeInBase = that.TradeWeight * totalInBase;
-
-        // KHONG DUOC QUA GIOI HAN
-        if (baseBal <= 0 || totalInBase <= 0 || (tradedInBase >= maxTradeInBase)) {
-            resolve(false);
-            return;
-        }
-
-        let wannaTradeInBase = maxTradeInBase - tradedInBase;
-        let wannaTrade = await that.API.convertTo(wannaTradeInBase, that.BaseCurrency, that.TradeCurrency);
+        let wannaTrade = await that.API.convertTo(baseBal, that.BaseCurrency, that.TradeCurrency);
 
         // THIEU TIEN BASE_CURRENCY
         let minTrade = await that.API.getMinTradeAmount();
@@ -169,6 +153,11 @@ AutoBot.prototype.shouldToBUY = async function () {
 
         var lastLeftIndex = firstRightIndex - 1;
         var lastLeft = macd[lastLeftIndex];
+
+        if (macd[lastLeftIndex - 1].histogram > 0 || macd[lastLeftIndex - 2].histogram > 0) {
+            resolve(false);
+            return;
+        }
 
         var leftAverage = 0;
         leftAverage += Math.abs(macd[lastLeftIndex].histogram);
@@ -232,6 +221,11 @@ AutoBot.prototype.shouldToSELL = async function () {
         var lastLeftIndex = firstRightIndex - 1;
         var lastLeft = macd[lastLeftIndex];
 
+        if (macd[lastLeftIndex - 1].histogram < 0 || macd[lastLeftIndex - 2].histogram < 0) {
+            resolve(false);
+            return;
+        }
+
         var leftAverage = 0;
         leftAverage += Math.abs(macd[lastLeftIndex].histogram);
         leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
@@ -253,19 +247,7 @@ AutoBot.prototype.shouldToSELL = async function () {
 AutoBot.prototype.suggestBuyPrice = async function () {
 
     let baseBal = await this.API.getBalance(this.BaseCurrency);
-    let tradedBal = await this.API.getBalance(this.TradeCurrency);
-
-    let tradedInBase = await this.API.convertTo(tradedBal, this.TradeCurrency, this.BaseCurrency);
-    let totalInBase = await this.API.getTotalBalanceInBase(this.BaseCurrency);
-
-    let maxTradeInBase = this.TradeWeight * totalInBase;
-
-    // KHONG DUOC QUA GIOI HAN
-    if (baseBal <= 0 || totalInBase <= 0 || (tradedInBase >= maxTradeInBase))
-        return null;
-
-    let wannaTradeInBase = maxTradeInBase - tradedInBase;
-    let wannaTrade = await this.API.convertTo(wannaTradeInBase, this.BaseCurrency, this.TradeCurrency);
+    let wannaTrade = await this.API.convertTo(baseBal, this.BaseCurrency, this.TradeCurrency);
 
     // THIEU TIEN BASE_CURRENCY
     let minTrade = await this.API.getMinTradeAmount();
@@ -305,8 +287,13 @@ AutoBot.prototype.suggestBuyPrice = async function () {
         }
     }
 
+    tradableAmt = baseBal / lowestPrice;
+
     if (tradableAmt > wannaTrade)
         tradableAmt = wannaTrade;
+
+    if (tradableAmt < minTrade)
+        return null;
 
     let result = await this.API.correctTradeOrder(tradableAmt, lowestPrice);
     return result;

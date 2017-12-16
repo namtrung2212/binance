@@ -128,6 +128,7 @@ BinanceAPI.prototype.getMinTradeAmount = async function () {
 
 BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
 
+    console.log("value = " + value);
     return new Promise((resolve) => {
 
         var _this = this;
@@ -158,6 +159,8 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
 
                 var qty = parseFloat(parseInt(value / stepSize) * stepSize);
                 qty = qty.toFixed(precision);
+
+                console.log("qty = " + qty);
 
                 if (qty < minQty || qty > maxQty) {
                     resolve(null);
