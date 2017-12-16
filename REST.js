@@ -36,6 +36,7 @@ var httpServer = http.createServer(WebServer);
 httpServer.listen(8080);
 
 WebServer.set('view engine', 'ejs');
+
 WebServer.get('/balance', function (req, res) {
 
     var currency = "USDT";
