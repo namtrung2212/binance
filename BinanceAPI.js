@@ -156,10 +156,10 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
                 let stepSize = parseFloat(lotSizes[0].stepSize);
                 var minNotional = parseFloat(minNotionals[0].minNotional);
 
-                var qty = (value / stepSize).toFixed() * stepSize;
+                var qty = parseFloat(parseInt(value / stepSize) * stepSize);
                 qty = qty.toFixed(precision);
 
-                if (qty < minQty || qty > maxQty || ((qty - minQty) % stepSize) != 0) {
+                if (qty < minQty || qty > maxQty) {
                     resolve(null);
                     return;
                 }
@@ -176,6 +176,7 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
 
             } catch (error) {
 
+                console.log("error = " + error);
                 resolve(null);
             }
 

@@ -2,19 +2,19 @@
 const AutoBot = require("./AutoBot");
 
 var bots = [
-    { trade: "BTC", base: "USDT" }
-    // { trade: "ETH", base: "USDT" },
-    // { trade: "LTC", base: "USDT" },
-    // { trade: "XRP", base: "USDT" },
+    { trade: "BTC", base: "USDT" },
+    { trade: "ETH", base: "USDT" },
+    { trade: "LTC", base: "USDT" },
+    { trade: "XRP", base: "USDT" },
 
-    // { trade: "ETH", base: "BTC" },
-    // { trade: "LTC", base: "BTC" },
-    // { trade: "XRP", base: "BTC" },
+    { trade: "ETH", base: "BTC" },
+    { trade: "LTC", base: "BTC" },
+    { trade: "XRP", base: "BTC" },
 
-    // { trade: "LTC", base: "ETH" },
-    // { trade: "XRP", base: "ETH" },
+    { trade: "LTC", base: "ETH" },
+    { trade: "XRP", base: "ETH" },
 
-    // { trade: "XRP", base: "LTC" }
+    { trade: "XRP", base: "LTC" }
 ];
 
 var root = {};
