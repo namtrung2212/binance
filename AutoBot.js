@@ -241,6 +241,8 @@ AutoBot.prototype.shouldToSELL = async function () {
         var rightAverage = Math.abs(macd[macd.length - 1].histogram);
 
         let percent = leftAverage / (leftAverage + rightAverage);
+        if (that.TradeCurrency == "BTC" && that.BaseCurrency == "USDT")
+            console.log("SELL percent = " + percent);
 
         let result = percent < 0.45;
 
