@@ -5,6 +5,7 @@
     "body-parser": "^1.18.2",
     "colors": "^1.1.2",
     "crypto": "^1.0.1",
+    "ejs": "^2.5.7",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
     "grpc": "^1.6.6",
@@ -31,7 +32,8 @@
     "start": "forever start -l autobot.log  -a index.js",
     "stop": "forever stopall",
     "viewlog": "tail -f /home/ec2-user/.forever/autobot.log",
-    "cleanlog": "rm /home/ec2-user/.forever/autobot.log"
+    "cleanlog": "rm /home/ec2-user/.forever/autobot.log",
+    "rest": "forever start -l rest.log -a REST.js"
   },
   "repository": {
     "type": "git",

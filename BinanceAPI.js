@@ -48,8 +48,9 @@ BinanceAPI.prototype.getBalances = async function (baseCur) {
                     total += parseFloat(balInBase);
 
                     var obj = {};
-                    obj[currency] = balances[currency].available;
-                    obj.$ = parseFloat(balInBase).toFixed(8);
+                    obj.Currency = currency;
+                    obj.Available = balances[currency].available;
+                    obj.Base = parseFloat(balInBase).toFixed(8);
 
                     list.push(obj);
 

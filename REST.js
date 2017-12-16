@@ -14,6 +14,9 @@ var caching = RedisClient.createClient("6379", "localhost");
 caching.flushall();
 
 const app = express();
+
+app.listen(57575);
+
 app.get('/balance', function (req, res) {
 
     var currency = "USDT";
@@ -28,5 +31,18 @@ app.get('/balance', function (req, res) {
 
 });
 
-app.listen(57575, function () {
-})
+
+app.set('view engine', 'ejs');
+app.get('/web/balance', function (req, res) {
+
+    var currency = "USDT";
+    if (req.query.currency)
+        currency = req.query.currency;
+
+    API.getBalances(currency).then(function (balance) {
+
+        res.render('balance', balance);
+
+    });
+
+});
