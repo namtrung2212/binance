@@ -34,7 +34,7 @@ root.timerHandler = async function (bots, current, root) {
     if (current < 0 || current >= bots.length)
         return;
 
-    var bot = new AutoBot(bots[current].trade, bots[current].base, "1m", 30);
+    var bot = new AutoBot(bots[current].trade, bots[current].base, "5m", 30);
     bot.initRedis("6379", "localhost");
     bot.start();
 
