@@ -30,7 +30,11 @@ RESTServer.get('/balance', function (req, res) {
 });
 
 const WebServer = express();
-WebServer.listen(8080);
+WebServer.use(bodyParser.urlencoded({ extended: false }))
+WebServer.use(bodyParser.json());
+var httpServer = http.createServer(WebServer);
+httpServer.listen(8080);
+
 WebServer.set('view engine', 'ejs');
 WebServer.get('/balance', function (req, res) {
 
