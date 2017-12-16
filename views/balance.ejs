@@ -16,6 +16,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
         crossorigin="anonymous"></script>
 
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#btnRefresh").click(function () {
+                location.reload(true);
+            });
+        });
+
+    </script>
 </head>
 
 <body class="container">
@@ -23,7 +32,7 @@
     <p></p>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h31 class="panel-title  text-center">Binance Balance (namtrung2212@gmail.com)</h1>
+            <h1 class=" text-center  font-weight-bold">Binance Balance (namtrung2212@gmail.com)</h1>
         </div>
         <div class="panel-body">
             <table class="table table-striped table-bordered table-hover">
@@ -75,6 +84,11 @@
         <h2>
             <%= Base %>
         </h2>
+    </div>
+    <h1></h1>
+    <div class="row text-center">
+        <button type="button" class="btn btn-primary btn-lg btn-block" id="btnRefresh">
+            REFRESH</button>
     </div>
 </body>
 
