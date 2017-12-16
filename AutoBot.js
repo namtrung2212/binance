@@ -1,10 +1,12 @@
 
+var moment = require('moment');
+var format = require('string-format');
 var MACD = require('technicalindicators').MACD;
 
 const RedisClient = require('redis');
 const BinanceAPI = require("./BinanceAPI");
 
-function AutoBot(baseCur, tradeCur, tradeWeight, MACDInput, interval) {
+function AutoBot(tradeCur, baseCur, tradeWeight, MACDInput, interval) {
 
     this.BaseCurrency = baseCur;
     this.TradeCurrency = tradeCur;
@@ -16,7 +18,7 @@ function AutoBot(baseCur, tradeCur, tradeWeight, MACDInput, interval) {
 
     this.IntervalMinute = interval;
 
-    this.API = new BinanceAPI(this.BaseCurrency, this.TradeCurrency);
+    this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
 
 };
 
@@ -31,6 +33,66 @@ AutoBot.prototype.initRedis = function (port, host) {
         console.error(err.stack);
     });
 
+};
+
+AutoBot.prototype.start = function () {
+
+    console.log("Start : " + this.Symbol + " with WEIGHT = " + this.TradeWeight * 100 + "% & MACD = " + this.MACDInput);
+
+    setTimeout(this.timerHandler, 1000 * 60 * this.IntervalMinute, this);
+};
+
+AutoBot.prototype.timerHandler = async function (bot) {
+
+    await bot.handler();
+
+    setTimeout(bot.timerHandler, 1000 * 60 * bot.IntervalMinute, bot);
+};
+
+AutoBot.prototype.handler = async function () {
+
+    if (await this.shouldToBUY()) {
+
+        let suggest = await this.suggestBuyPrice();
+        if (suggest) {
+            let newOrder = await this.API.buy(suggest.amount, suggest.price);
+
+            console.log("----------------------------------------------------");
+            var str = format("[{0} {1}] BUY {2} {3} at {4} {5}/{6}",
+                moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
+                this.BaseCurrency,
+                suggest.amount, this.TradeCurrency,
+                suggest.price, this.TradeCurrency, this.BaseCurrency)
+                .toString();
+
+            console.log(str);
+            console.log(JSON.stringify(newOrder));
+
+
+        }
+    }
+
+    if (await this.shouldToSELL()) {
+
+        let suggest = await this.suggestSellPrice();
+        if (suggest) {
+
+            let newOrder = await this.API.sell(suggest.amount, suggest.price);
+
+
+            console.log("----------------------------------------------------");
+            var str = format("[{0} {1}] SELL {2} {3} at {4} {5}/{6}",
+                moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
+                this.BaseCurrency,
+                suggest.amount, this.TradeCurrency,
+                suggest.price, this.TradeCurrency, this.BaseCurrency)
+                .toString();
+
+            console.log(str);
+            console.log(JSON.stringify(newOrder));
+        }
+
+    }
 };
 
 AutoBot.prototype.MACD = async function (histories) {
@@ -262,13 +324,7 @@ AutoBot.prototype.suggestBuyPrice = async function () {
     if (tradableAmt > wannaTrade)
         tradableAmt = wannaTrade;
 
-    let precision = await this.API.getTradePrecision();
-
-    let result = {
-        price: lowestPrice.toFixed(precision),
-        amount: await this.API.roundByStepLimit(tradableAmt.toFixed(precision))
-    };
-
+    let result = await this.API.correctTradeOrder(tradableAmt, lowestPrice);
     return result;
 };
 
@@ -320,45 +376,6 @@ AutoBot.prototype.suggestSellPrice = async function () {
     if (tradableAmt > wannaTrade)
         tradableAmt = wannaTrade;
 
-    let precision = await this.API.getTradePrecision();
-
-    let result = {
-        price: highestPrice.toFixed(precision),
-        amount: await this.API.roundByStepLimit(tradableAmt.toFixed(precision))
-    };
-
+    let result = await this.API.correctTradeOrder(tradableAmt, highestPrice);
     return result;
-};
-
-AutoBot.prototype.start = function () {
-
-    console.log("Start : " + this.Symbol + " with WEIGHT = " + this.TradeWeight * 100 + "% & MACD = " + this.MACDInput);
-
-    setTimeout(this.timerHandler, 1000 * 60 * this.IntervalMinute, this);
-};
-
-AutoBot.prototype.timerHandler = async function (bot) {
-
-    await bot.handler();
-
-    setTimeout(bot.timerHandler, 1000 * 60 * bot.IntervalMinute, bot);
-};
-
-AutoBot.prototype.handler = async function () {
-
-    if (await this.shouldToBUY()) {
-
-        let suggest = await this.suggestBuyPrice();
-        let newOrder = await this.API.buy(suggest.amount, suggest.price);
-        console.log("BUY " + this.TradeCurrency + ": " + JSON.stringify(newOrder));
-
-    }
-
-    if (await this.shouldToSELL()) {
-
-        let suggest = await this.suggestSellPrice();
-        let newOrder = await this.API.sell(suggest.amount, suggest.price);
-        console.log("SELL " + this.TradeCurrency + ": " + JSON.stringify(newOrder));
-
-    }
 };

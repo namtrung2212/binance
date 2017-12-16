@@ -1,5 +1,5 @@
 
-function BinanceAPI(baseCur, tradeCur) {
+function BinanceAPI(tradeCur, baseCur) {
 
     this.BaseCurrency = baseCur;
     this.TradeCurrency = tradeCur;
@@ -14,7 +14,6 @@ function BinanceAPI(baseCur, tradeCur) {
 };
 
 module.exports = BinanceAPI;
-
 
 BinanceAPI.prototype.getBalance = async function (currency) {
 
@@ -101,16 +100,17 @@ BinanceAPI.prototype.getMinTradeAmount = async function () {
                 return;
             }
 
+            let symbol = symbols[0];
+
             try {
-                var filters = symbols[0].filters.filter(filter => filter.filterType == 'LOT_SIZE');
-                if (filters.length <= 0) {
+
+                var lotSizes = symbol.filters.filter(x => x.filterType == 'LOT_SIZE');
+                if (lotSizes.length <= 0) {
                     resolve(-1);
                     return;
                 }
 
-                var minQty = filters[0].minQty;
-                minQty = parseFloat(minQty);
-
+                let minQty = parseFloat(lotSizes[0].minQty);
                 resolve(minQty);
 
             } catch (error) {
@@ -126,13 +126,66 @@ BinanceAPI.prototype.getMinTradeAmount = async function () {
     });
 };
 
-BinanceAPI.prototype.roundByStepLimit = async function (value) {
+BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
 
-    let minAmt = await this.getMinTradeAmount();
-    let precision = await this.getTradePrecision();
+    return new Promise((resolve) => {
 
-    var round = (value / minAmt).toFixed() * minAmt;
-    return round.toFixed(precision);
+        var _this = this;
+        this.binance.exchangeInfo(function (info) {
+
+            var symbols = info.symbols.filter(symbol => symbol.symbol == _this.Symbol);
+            if (symbols.length <= 0) {
+                resolve(null);
+                return;
+            }
+
+            let symbol = symbols[0];
+            let precision = symbol.baseAssetPrecision;
+
+            try {
+
+                var lotSizes = symbol.filters.filter(x => x.filterType == 'LOT_SIZE');
+                var minNotionals = symbol.filters.filter(x => x.filterType == 'MIN_NOTIONAL');
+                if (lotSizes.length <= 0 || minNotionals.length <= 0) {
+                    resolve(null);
+                    return;
+                }
+
+                let minQty = parseFloat(lotSizes[0].minQty);
+                let maxQty = parseFloat(lotSizes[0].maxQty);
+                let stepSize = parseFloat(lotSizes[0].stepSize);
+                var minNotional = parseFloat(minNotionals[0].minNotional);
+
+                var qty = (value / stepSize).toFixed() * stepSize;
+                qty = qty.toFixed(precision);
+
+                if (qty < minQty || qty > maxQty || ((qty - minQty) % stepSize) != 0) {
+                    resolve(null);
+                    return;
+                }
+
+                if ((price * qty) < minNotional) {
+                    resolve(null);
+                    return;
+                }
+
+                resolve({
+                    price: price.toFixed(precision),
+                    amount: qty
+                });
+
+            } catch (error) {
+
+                resolve(null);
+            }
+
+        });
+
+    }).catch(error => {
+
+        console.log("error = " + error);
+    });
+
 };
 
 BinanceAPI.prototype.getTradePrecision = async function () {
@@ -251,7 +304,6 @@ BinanceAPI.prototype.sell = async function (amount, price) {
         });
     });
 };
-
 
 BinanceAPI.prototype.chartHistory = async function (interval) {
 

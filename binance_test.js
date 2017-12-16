@@ -2,7 +2,7 @@
 
 const BinanceAPI = require("./BinanceAPI");
 
-var API = new BinanceAPI("USDT", "BTC");
+var API = new BinanceAPI("XRP", "BTC");
 
 
 // API.getTotalBalanceInBase().then(function (obj) {
@@ -16,8 +16,20 @@ var API = new BinanceAPI("USDT", "BTC");
 // });
 
 
-API.roundByStepLimit(0.01453623434343).then(function (obj) {
+// API.roundByStepLimit(0.01453623434343).then(function (obj) {
 
-    console.log(obj);
-});
+//     console.log(obj);
+// });
 
+// API.correctTradeOrder(23.234, 0.000342).then(function (obj) {
+
+//     console.log("correctTradeOrder = " + JSON.stringify(obj));
+// });
+
+// API.getTradePrecision().then(function (obj) {
+
+//     console.log("getTradePrecision = " + obj);
+// });
+
+var moment = require('moment');
+console.log(moment().utcOffset(12).format("YYYY-MM-DD HH:mm"));
