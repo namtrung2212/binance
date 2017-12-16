@@ -33,7 +33,8 @@
     "stop": "forever stopall",
     "viewlog": "tail -f /home/ec2-user/.forever/autobot.log",
     "cleanlog": "rm /home/ec2-user/.forever/autobot.log",
-    "rest": "forever start -l rest.log -a REST.js"
+    "rest": "forever start -l rest.log -a RESTServer.js",
+    "web": "forever start -l web.log -a WebServer.js"
   },
   "repository": {
     "type": "git",
