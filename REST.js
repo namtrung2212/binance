@@ -14,7 +14,7 @@ var caching = RedisClient.createClient("6379", "localhost");
 caching.flushall();
 
 const RESTServer = express();
-RESTServer.listen(57575);
+RESTServer.listen(8080);
 RESTServer.get('/balance', function (req, res) {
 
     var currency = "USDT";
@@ -33,7 +33,7 @@ const WebServer = express();
 WebServer.use(bodyParser.urlencoded({ extended: false }))
 WebServer.use(bodyParser.json());
 var httpServer = http.createServer(WebServer);
-httpServer.listen(8080);
+httpServer.listen(57575);
 
 WebServer.set('view engine', 'ejs');
 
