@@ -57,7 +57,7 @@ AutoBot.prototype.handler = async function () {
 
             console.log("----------------------------------------------------------------------");
             var str = format("[{0} {1}] BUY {2} {3} at {4} {5}/{6}",
-                moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
+                moment().utcOffset(7).format("YYYY-MM-DD HH:mm"),
                 this.BaseCurrency,
                 suggest.amount, this.TradeCurrency,
                 suggest.price, this.BaseCurrency, this.TradeCurrency)
@@ -80,7 +80,7 @@ AutoBot.prototype.handler = async function () {
 
             console.log("----------------------------------------------------------------------");
             var str = format("[{0} {1}] SELL {2} {3} at {4} {5}/{6}",
-                moment().utcOffset(12).format("YYYY-MM-DD HH:mm"),
+                moment().utcOffset(7).format("YYYY-MM-DD HH:mm"),
                 this.BaseCurrency,
                 suggest.amount, this.TradeCurrency,
                 suggest.price, this.BaseCurrency, this.TradeCurrency)

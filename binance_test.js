@@ -32,4 +32,4 @@ var API = new BinanceAPI("XRP", "BTC");
 // });
 
 var moment = require('moment');
-console.log(moment().utcOffset(12).format("YYYY-MM-DD HH:mm"));
+console.log(moment().utcOffset(7).format("YYYY-MM-DD HH:mm"));
