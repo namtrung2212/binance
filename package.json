@@ -28,7 +28,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "forever start -l autobot.log  -a BTC-USDT.js && forever start -l autobot.log  -a ETH-USDT.js && forever start -l autobot.log  -a LTC-BTC.js && forever start -l autobot.log  -a -XRPBTC.js",
+    "stop": "forever stopall"
   },
   "repository": {
     "type": "git",
