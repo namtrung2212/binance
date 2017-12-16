@@ -30,7 +30,8 @@
   "scripts": {
     "start": "forever start -l autobot.log  -a BTC-USDT.js && forever start -l autobot.log  -a ETH-USDT.js && forever start -l autobot.log  -a LTC-BTC.js && forever start -l autobot.log  -a XRP-BTC.js",
     "stop": "forever stopall",
-    "log": "tail -f /home/ec2-user/.forever/autobot.log"
+    "log": "tail -f /home/ec2-user/.forever/autobot.log",
+    "clean": "rm /home/ec2-user/.forever/autobot.log"
   },
   "repository": {
     "type": "git",
