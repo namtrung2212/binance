@@ -9,6 +9,14 @@ var bots = [
 
     { trade: "XRP", base: "BTC" },
     { trade: "ETC", base: "BTC" },
+    { trade: "XVG", base: "BTC" },
+    { trade: "ADA", base: "BTC" },
+    { trade: "TRX", base: "BTC" },
+    { trade: "POE", base: "BTC" },
+    { trade: "CTR", base: "BTC" },
+    { trade: "AMB", base: "BTC" },
+    { trade: "SNT", base: "BTC" },
+
     { trade: "XRP", base: "ETH" },
     { trade: "ETC", base: "ETH" }
 
@@ -26,7 +34,7 @@ root.timerHandler = async function (bots, current, root) {
     if (current < 0 || current >= bots.length)
         return;
 
-    var bot = new AutoBot(bots[current].trade, bots[current].base, "5m", 30);
+    var bot = new AutoBot(bots[current].trade, bots[current].base, "5m", 40);
     bot.initRedis("6379", "localhost");
     bot.start();
 
