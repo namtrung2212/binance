@@ -198,8 +198,8 @@ AutoBot.prototype.caclBUYPercent = async function (maxPeriod) {
     var that = this;
     return new Promise(async function (resolve) {
 
-        // var histories = await that.API.chartHistory(that.MACDPeriod);
-        var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
+        var histories = await that.API.chartHistory(that.MACDPeriod);
+        //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
         var macd = await that.MACD(histories);
         if (!macd || macd.length < 10 || macd[macd.length - 1].histogram < 0) {
@@ -325,8 +325,8 @@ AutoBot.prototype.caclSElLPercent = async function (maxPeriod) {
     var that = this;
     return new Promise(async function (resolve) {
 
-        // var histories = await that.API.chartHistory(that.MACDPeriod);
-        var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
+        var histories = await that.API.chartHistory(that.MACDPeriod);
+        //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
         var macd = await that.MACD(histories);
 

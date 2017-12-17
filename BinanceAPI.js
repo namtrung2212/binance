@@ -363,8 +363,9 @@ BinanceAPI.prototype.sell = async function (amount, price) {
 
 BinanceAPI.prototype.chartHistory = async function (interval) {
 
-    return new Promise((resolve) => {
-        this.binance.candlesticks(this.Symbol, interval, function (ticks) {
+    var that = this;
+    return new Promise(async function (resolve) {
+        this.binance.candlesticks(that.Symbol, interval, function (ticks) {
             let closedArr = Array.from(ticks, x => parseFloat(x[4]));
             let timeArr = Array.from(ticks, x => parseFloat(x[0]));
             resolve({ prices: closedArr, times: timeArr });
@@ -391,15 +392,16 @@ BinanceAPI.prototype.chartHistoryBySymbol = async function (interval, tradeCur, 
 
 BinanceAPI.prototype.chartHistoryInBase = async function (interval, masterBaseCur) {
 
-    return new Promise((resolve) => {
+    var that = this;
+    return new Promise(async function (resolve) {
 
-        let his1 = await this.chartHistoryBySymbol(interval, this.TradeCurrency, this.BaseCurrency);
-        if (masterBaseCur == this.BaseCurrency) {
+        let his1 = await that.chartHistoryBySymbol(interval, that.TradeCurrency, that.BaseCurrency);
+        if (masterBaseCur == that.BaseCurrency) {
             resolve(his1);
             return;
         }
 
-        let his2 = await this.chartHistoryBySymbol(interval, this.BaseCurrency, this.masterBaseCur);
+        let his2 = await that.chartHistoryBySymbol(interval, that.BaseCurrency, that.masterBaseCur);
         let count = Math.min(his1.length, his2.length);
 
         for (var i = 1; i <= count; i++) {
