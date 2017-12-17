@@ -180,7 +180,7 @@ AutoBot.prototype.shouldToBUY = async function () {
         var rightAverage = Math.abs(macd[macd.length - 1].histogram);
         let percent = leftAverage / (leftAverage + rightAverage);
 
-        let result = percent < 0.45;
+        let result = percent < 0.5;
 
         resolve(result);
     });
@@ -261,7 +261,7 @@ AutoBot.prototype.shouldToSELL = async function () {
         // if (that.TradeCurrency == "BTC" && that.BaseCurrency == "USDT")
         //     console.log("SELL percent = " + percent);
 
-        let result = percent < 0.45;
+        let result = percent < 0.5;
 
         resolve(result);
     });
