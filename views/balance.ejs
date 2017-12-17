@@ -48,7 +48,7 @@
                     <% Trades.forEach((trade, index) => { %>
                         <tr>
                             <th scope="row" class="h2 font-weight-light text-center">
-                                <%= index %>
+                                <%= index + 1 %>
                             </th>
                             <td class="h2 font-weight-light text-center">
                                 <%= trade.Currency %>
@@ -84,7 +84,7 @@
     </div>
     <h1></h1>
     <div class="row text-center">
-        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="reloadPage();" style=" height: 100px; font-size: 40px; margin-top: 40px; ">
+        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="reloadPage();" style=" height: 100px; font-size: 40px; margin-top: 35px; ">
             REFRESH</button>
     </div>
 </body>

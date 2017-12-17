@@ -274,7 +274,7 @@ AutoBot.prototype.suggestBuyPrice = async function () {
     var firtPrice = lowestPrice;
     var tradableAmt = 0;
 
-    for (var i = 2; i < sellings[i].length; i++) {
+    for (var i = 2; i < sellings.length; i++) {
 
         let selling = sellings[i];
         if (selling.price && selling.price < 0.95 * firtPrice) {
@@ -333,7 +333,7 @@ AutoBot.prototype.suggestSellPrice = async function () {
 
     var tradableAmt = 0;
 
-    for (var i = 2; i < buyings[i].length; i++) {
+    for (var i = 2; i < buyings.length; i++) {
 
         let buying = buyings[i];
         if (buying.price && buying.price > 0.95 * firtPrice) {
@@ -358,5 +358,6 @@ AutoBot.prototype.suggestSellPrice = async function () {
     let result = await this.API.correctTradeOrder(tradableAmt, highestPrice);
     // if (this.TradeCurrency == "BTC" && this.BaseCurrency == "USDT")
     //     console.log("SELL order = " + result);
+
     return result;
 };
