@@ -52,7 +52,7 @@ AutoBot.prototype.timerHandler = async function (bot) {
 
 AutoBot.prototype.handler = async function () {
 
-    if (await this.shouldToBUY(0.5)) {
+    if (await this.shouldToBUY(0.55)) {
 
         let suggest = await this.suggestBuyPrice();
         if (suggest) {
@@ -100,7 +100,7 @@ AutoBot.prototype.handler = async function () {
         }
     }
 
-    if (await this.shouldToSELL(0.45)) {
+    if (await this.shouldToSELL(0.55)) {
 
         let suggest = await this.suggestSellPrice();
         if (suggest) {
