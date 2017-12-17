@@ -279,8 +279,12 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
             console.log(that.Symbol + " : percent = " + percent);
             console.log(that.Symbol + " : maxPercent = " + maxPercent);
         }
-        if (!should && percent > 0.7 * maxPercent)
+        if (!should && percent > 0.7 * maxPercent) {
             should = await that.shouldToSELL_CheckOtherBots(0.75);
+            if (should) {
+                console.log("Should SELL " + that.TradeCurrency + " by another required");
+            }
+        }
 
         resolve(should);
     });
