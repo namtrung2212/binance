@@ -133,7 +133,7 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
 
         let percent = await that.caclBUYPercent(3);
 
-        var should = (percent != null && percent > maxPercent);
+        var should = percent > maxPercent;
 
         resolve(should);
     });
@@ -147,7 +147,7 @@ AutoBot.prototype.caclBUYPercent = async function (maxPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         var macd = await that.MACD(histories);
         if (!macd || macd.length < 10 || macd[macd.length - 1].histogram < 0) {
-            resolve(null);
+            resolve(0);
             return;
         }
 
@@ -162,18 +162,18 @@ AutoBot.prototype.caclBUYPercent = async function (maxPeriod) {
             }
         }
         if (!firstRight) {
-            resolve(null);
+            resolve(0);
             return;
         }
 
         if (macd[macd.length - 1].histogram < macd[macd.length - 2].histogram) {
-            resolve(null);
+            resolve(0);
             return;
         }
 
         // DUOI N LAN TANG LIEN TIEP
-        if ((macd.length - 1) - firstRightIndex < maxPeriod - 1) {
-            resolve(null);
+        if ((macd.length - 1) - firstRightIndex + 1 < maxPeriod) {
+            resolve(0);
             return;
         }
 
@@ -220,10 +220,10 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
         }
 
         let percent = await that.caclSElLPercent(4);
+        var should = percent > maxPercent;
 
-        var should = (percent != null && percent > maxPercent);
-        if (!should)
-            should = await that.shouldToSELL_CheckOtherBots(0.6);
+        if (!should && percent > 0.7 * maxPercent)
+            should = await that.shouldToSELL_CheckOtherBots(0.7);
 
         resolve(should);
     });
@@ -240,7 +240,7 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
             if (other.BaseCurrency == that.BaseCurrency) {
 
                 let percent = await other.caclBUYPercent(5);
-                if (percent != null && percent > maxPercent) {
+                if (percent > maxPercent) {
                     resolve(true);
                     return;
                 }
@@ -264,7 +264,7 @@ AutoBot.prototype.caclSElLPercent = async function (maxPeriod) {
         var macd = await that.MACD(histories);
 
         if (!macd || macd.length < 10 || macd[macd.length - 1].histogram >= 0) {
-            resolve(null);
+            resolve(0);
             return;
         }
 
@@ -279,13 +279,13 @@ AutoBot.prototype.caclSElLPercent = async function (maxPeriod) {
             }
         }
         if (!firstRight) {
-            resolve(null);
+            resolve(0);
             return;
         }
 
         // N LAN GIAM LIEN TIEP -> SELL
-        if ((macd.length - 1) - firstRightIndex > maxPeriod - 2) {
-            resolve(null);
+        if ((macd.length - 1) - firstRightIndex + 1 >= maxPeriod) {
+            resolve(1);
             return;
         }
 
