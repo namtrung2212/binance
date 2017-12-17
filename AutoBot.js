@@ -1,6 +1,7 @@
 
 var moment = require('moment');
 var format = require('string-format');
+var columnify = require('columnify');
 var MACD = require('technicalindicators').MACD;
 
 const RedisClient = require('redis');
@@ -58,16 +59,42 @@ AutoBot.prototype.handler = async function () {
             let newOrder = await this.API.buy(suggest.amount, suggest.price);
 
             console.log("----------------------------------------------------------------------");
-            var str = format("[{0} {1}] BUY {2} {3} at {4} {5}/{6}",
-                moment().utcOffset(7).format("YYYY-MM-DD HH:mm"),
-                this.BaseCurrency,
-                suggest.amount, this.TradeCurrency,
-                suggest.price, this.BaseCurrency, this.TradeCurrency)
-                .toString();
 
-            console.log(str);
-            // console.log(JSON.stringify(newOrder));
+            let data = [{
 
+                Time: "[" + moment().utcOffset(7).format("YYYY-MM-DD HH:mm") + "]",
+                Type: "BUY",
+                Qty: suggest.amount,
+                Coin: this.TradeCurrency,
+                Price: suggest.price,
+                Ex: this.BaseCurrency + "/" + this.TradeCurrency
+
+            }];
+            var columns = columnify(data, {
+                showHeaders: false,
+                config: {
+                    Type: {
+                        align: 'center',
+                        minWidth: 5,
+                        maxWidth: 10
+                    },
+                    Qty: {
+                        align: 'right',
+                        minWidth: 15
+                    },
+                    Coin: {
+                        align: 'center'
+                    },
+                    Price: {
+                        align: 'right',
+                        minWidth: 15
+                    },
+                    Ex: {
+                        align: 'center'
+                    }
+                }
+
+            });
 
         }
     }
@@ -79,19 +106,44 @@ AutoBot.prototype.handler = async function () {
 
             let newOrder = await this.API.sell(suggest.amount, suggest.price);
 
-
             console.log("----------------------------------------------------------------------");
-            var str = format("[{0} {1}] SELL {2} {3} at {4} {5}/{6}",
-                moment().utcOffset(7).format("YYYY-MM-DD HH:mm"),
-                this.BaseCurrency,
-                suggest.amount, this.TradeCurrency,
-                suggest.price, this.BaseCurrency, this.TradeCurrency)
-                .toString();
 
-            console.log(str);
-            // console.log(JSON.stringify(newOrder));
+            let data = [{
+
+                Time: "[" + moment().utcOffset(7).format("YYYY-MM-DD HH:mm") + "]",
+                Type: "SELL",
+                Qty: suggest.amount,
+                Coin: this.TradeCurrency,
+                Price: suggest.price,
+                Ex: this.BaseCurrency + "/" + this.TradeCurrency
+
+            }];
+            var columns = columnify(data, {
+                showHeaders: false,
+                config: {
+                    Type: {
+                        align: 'center',
+                        minWidth: 5,
+                        maxWidth: 10
+                    },
+                    Qty: {
+                        align: 'right',
+                        minWidth: 15
+                    },
+                    Coin: {
+                        align: 'center'
+                    },
+                    Price: {
+                        align: 'right',
+                        minWidth: 15
+                    },
+                    Ex: {
+                        align: 'center'
+                    }
+                }
+
+            });
         }
-
     }
 };
 
@@ -222,8 +274,8 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
         let percent = await that.caclSElLPercent(4);
         var should = percent > maxPercent;
 
-        if (!should && percent > 0.7 * maxPercent)
-            should = await that.shouldToSELL_CheckOtherBots(0.7);
+        if (!should && percent > 0.85 * maxPercent)
+            should = await that.shouldToSELL_CheckOtherBots(0.75);
 
         resolve(should);
     });
