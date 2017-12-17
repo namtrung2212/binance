@@ -151,6 +151,17 @@ AutoBot.prototype.shouldToBUY = async function () {
             return;
         }
 
+        if (macd[macd.length - 1].histogram < macd[macd.length - 2].histogram) {
+            resolve(false);
+            return;
+        }
+
+        // DUOI 2 LAN TANG LIEN TIEP
+        if ((macd.length - 1) - firstRightIndex < 1) {
+            resolve(false);
+            return;
+        }
+
         var lastLeftIndex = firstRightIndex - 1;
         var lastLeft = macd[lastLeftIndex];
 
@@ -214,6 +225,11 @@ AutoBot.prototype.shouldToSELL = async function () {
             }
         }
         if (!firstRight) {
+            resolve(false);
+            return;
+        }
+
+        if (macd[macd.length - 1].histogram >= macd[macd.length - 2].histogram) {
             resolve(false);
             return;
         }
