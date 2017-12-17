@@ -1,7 +1,7 @@
 
 const AutoBot = require("./AutoBot");
 
-var bots = [
+var botsArr = [
     { trade: "BTC", base: "USDT" },
     { trade: "ETH", base: "USDT" },
     { trade: "LTC", base: "USDT" },
@@ -23,22 +23,24 @@ var bots = [
 ];
 
 var root = {};
+root.bots = [];
 
-root.start = function (bots) {
+root.start = function (botsArr) {
 
-    setTimeout(this.timerHandler, 1000 * 2, bots, 0, this);
+    setTimeout(this.timerHandler, 1000 * 2, botsArr, 0, this);
 };
+root.timerHandler = async function (botsArr, current, root) {
 
-root.timerHandler = async function (bots, current, root) {
-
-    if (current < 0 || current >= bots.length)
+    if (current < 0 || current >= botsArr.length)
         return;
 
-    var bot = new AutoBot(bots[current].trade, bots[current].base, "5m", 10);
-    bot.initRedis("6379", "localhost");
+    var bot = new AutoBot(botsArr[current].trade, botsArr[current].base, "5m", 30);
+    bot.init(root, "6379", "localhost");
     bot.start();
 
-    setTimeout(root.timerHandler, 1000 * 10, bots, current + 1, root);
+    root.bots.push(bot);
+
+    setTimeout(root.timerHandler, 1000 * 10, botsArr, current + 1, root);
 };
 
-root.start(bots);
+root.start(botsArr);

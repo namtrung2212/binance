@@ -6,13 +6,13 @@ var MACD = require('technicalindicators').MACD;
 const RedisClient = require('redis');
 const BinanceAPI = require("./BinanceAPI");
 
-function AutoBot(tradeCur, baseCur, MACDInput, interval) {
+function AutoBot(tradeCur, baseCur, MACDPeriod, interval) {
 
     this.BaseCurrency = baseCur;
     this.TradeCurrency = tradeCur;
     this.Symbol = this.TradeCurrency + this.BaseCurrency;
 
-    this.MACDInput = MACDInput;
+    this.MACDPeriod = MACDPeriod;
 
     this.IntervalMinute = interval / 60;
 
@@ -22,7 +22,9 @@ function AutoBot(tradeCur, baseCur, MACDInput, interval) {
 
 module.exports = AutoBot;
 
-AutoBot.prototype.initRedis = function (port, host) {
+AutoBot.prototype.init = function (root, port, host) {
+
+    this.Bots = root.bots;
 
     this.caching = RedisClient.createClient(port, host);
     // this.caching.flushall();
@@ -35,7 +37,7 @@ AutoBot.prototype.initRedis = function (port, host) {
 
 AutoBot.prototype.start = function () {
 
-    console.log("Start : " + this.TradeCurrency + "-" + this.BaseCurrency + " with MACD = " + this.MACDInput);
+    console.log("Start : " + this.TradeCurrency + "-" + this.BaseCurrency + " with MACD = " + this.MACDPeriod);
 
     setTimeout(this.timerHandler, 1000 * 60 * this.IntervalMinute, this);
 };
@@ -49,7 +51,7 @@ AutoBot.prototype.timerHandler = async function (bot) {
 
 AutoBot.prototype.handler = async function () {
 
-    if (await this.shouldToBUY()) {
+    if (await this.shouldToBUY(0.5)) {
 
         let suggest = await this.suggestBuyPrice();
         if (suggest) {
@@ -70,7 +72,7 @@ AutoBot.prototype.handler = async function () {
         }
     }
 
-    if (await this.shouldToSELL()) {
+    if (await this.shouldToSELL(0.45)) {
 
         let suggest = await this.suggestSellPrice();
         if (suggest) {
@@ -114,7 +116,7 @@ AutoBot.prototype.MACD = async function (histories) {
     });
 };
 
-AutoBot.prototype.shouldToBUY = async function () {
+AutoBot.prototype.shouldToBUY = async function (maxPercent) {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -129,10 +131,23 @@ AutoBot.prototype.shouldToBUY = async function () {
             return;
         }
 
-        var histories = await that.API.chartHistory(that.MACDInput);
+        let percent = await that.caclBUYPercent(3);
+
+        var should = (percent != null && percent > maxPercent);
+
+        resolve(should);
+    });
+};
+
+AutoBot.prototype.caclBUYPercent = async function (maxPeriod) {
+
+    var that = this;
+    return new Promise(async function (resolve) {
+
+        var histories = await that.API.chartHistory(that.MACDPeriod);
         var macd = await that.MACD(histories);
         if (!macd || macd.length < 10 || macd[macd.length - 1].histogram < 0) {
-            resolve(false);
+            resolve(null);
             return;
         }
 
@@ -147,18 +162,18 @@ AutoBot.prototype.shouldToBUY = async function () {
             }
         }
         if (!firstRight) {
-            resolve(false);
+            resolve(null);
             return;
         }
 
         if (macd[macd.length - 1].histogram < macd[macd.length - 2].histogram) {
-            resolve(false);
+            resolve(null);
             return;
         }
 
-        // DUOI 2 LAN TANG LIEN TIEP
-        if ((macd.length - 1) - firstRightIndex < 1) {
-            resolve(false);
+        // DUOI N LAN TANG LIEN TIEP
+        if ((macd.length - 1) - firstRightIndex < maxPeriod - 1) {
+            resolve(null);
             return;
         }
 
@@ -178,15 +193,13 @@ AutoBot.prototype.shouldToBUY = async function () {
         leftAverage = leftAverage / count;
 
         var rightAverage = Math.abs(macd[macd.length - 1].histogram);
-        let percent = leftAverage / (leftAverage + rightAverage);
+        let percent = rightAverage / (leftAverage + rightAverage);
 
-        let result = percent < 0.5;
-
-        resolve(result);
+        resolve(percent);
     });
 };
 
-AutoBot.prototype.shouldToSELL = async function () {
+AutoBot.prototype.shouldToSELL = async function (maxPercent) {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -206,11 +219,52 @@ AutoBot.prototype.shouldToSELL = async function () {
             return;
         }
 
-        var histories = await that.API.chartHistory(that.MACDInput);
+        let percent = await that.caclSElLPercent(4);
+
+        var should = (percent != null && percent > maxPercent);
+        if (!should)
+            should = await that.shouldToSELL_CheckOtherBots(0.6);
+
+        resolve(should);
+    });
+};
+
+AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
+
+    var that = this;
+    return new Promise(async function (resolve) {
+
+        for (var i = 0; i < that.Bots.length; i++) {
+
+            let other = that.Bots[i];
+            if (other.BaseCurrency == that.BaseCurrency) {
+
+                let percent = await other.caclBUYPercent(5);
+                if (percent != null && percent > maxPercent) {
+                    resolve(true);
+                    return;
+                }
+
+            }
+            if (i == that.Bots.length - 1) {
+                resolve(false);
+                return;
+            }
+        }
+    });
+};
+
+
+AutoBot.prototype.caclSElLPercent = async function (maxPeriod) {
+
+    var that = this;
+    return new Promise(async function (resolve) {
+
+        var histories = await that.API.chartHistory(that.MACDPeriod);
         var macd = await that.MACD(histories);
 
         if (!macd || macd.length < 10 || macd[macd.length - 1].histogram >= 0) {
-            resolve(false);
+            resolve(null);
             return;
         }
 
@@ -225,18 +279,13 @@ AutoBot.prototype.shouldToSELL = async function () {
             }
         }
         if (!firstRight) {
-            resolve(false);
+            resolve(null);
             return;
         }
 
-        if (macd[macd.length - 1].histogram >= macd[macd.length - 2].histogram) {
-            resolve(false);
-            return;
-        }
-
-        // 4 LAN GIAM LIEN TIEP -> SELL
-        if ((macd.length - 1) - firstRightIndex > 2) {
-            resolve(true);
+        // N LAN GIAM LIEN TIEP -> SELL
+        if ((macd.length - 1) - firstRightIndex > maxPeriod - 2) {
+            resolve(null);
             return;
         }
 
@@ -257,13 +306,11 @@ AutoBot.prototype.shouldToSELL = async function () {
 
         var rightAverage = Math.abs(macd[macd.length - 1].histogram);
 
-        let percent = leftAverage / (leftAverage + rightAverage);
+        let percent = rightAverage / (leftAverage + rightAverage);
         // if (that.TradeCurrency == "BTC" && that.BaseCurrency == "USDT")
         //     console.log("SELL percent = " + percent);
 
-        let result = percent < 0.5;
-
-        resolve(result);
+        resolve(percent);
     });
 };
 
