@@ -227,16 +227,17 @@ AutoBot.prototype.shouldToSELL = async function () {
         var lastLeftIndex = firstRightIndex - 1;
         var lastLeft = macd[lastLeftIndex];
 
-        if (macd[lastLeftIndex - 1].histogram < 0 || macd[lastLeftIndex - 2].histogram < 0) {
-            resolve(false);
-            return;
+        var leftAverage = Math.abs(macd[lastLeftIndex].histogram);
+        var count = 1;
+        if (macd[lastLeftIndex - 1].histogram >= 0) {
+            leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
+            count++;
         }
-
-        var leftAverage = 0;
-        leftAverage += Math.abs(macd[lastLeftIndex].histogram);
-        leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
-        leftAverage += Math.abs(macd[lastLeftIndex - 2].histogram);
-        leftAverage = leftAverage / 3;
+        if (macd[lastLeftIndex - 2].histogram >= 0) {
+            leftAverage += Math.abs(macd[lastLeftIndex - 2].histogram);
+            count++;
+        }
+        leftAverage = leftAverage / count;
 
         var rightAverage = Math.abs(macd[macd.length - 1].histogram);
 
