@@ -45,15 +45,16 @@ BinanceAPI.prototype.getBalances = async function (baseCur) {
                     let balInBase = (await _this.convertTo(balances[currency].available, currency, "BTC"));
                     balInBase = (await _this.convertTo(balInBase, "BTC", baseCur));
 
-                    total += parseFloat(balInBase);
+                    if (balInBase) {
+                        total += parseFloat(balInBase);
 
-                    var obj = {};
-                    obj.Currency = currency;
-                    obj.Available = balances[currency].available;
-                    obj.Base = parseFloat(balInBase).toFixed(8);
+                        var obj = {};
+                        obj.Currency = currency;
+                        obj.Available = balances[currency].available;
+                        obj.Base = parseFloat(balInBase).toFixed(8);
 
-                    list.push(obj);
-
+                        list.push(obj);
+                    }
                 }
                 count++;
 
@@ -90,8 +91,8 @@ BinanceAPI.prototype.getTotalBalanceInBase = async function (baseCur) {
                 if (balances[currency] && balances[currency].available > 0) {
 
                     let balInBase = (await _this.convertTo(balances[currency].available, currency, baseCur));
-
-                    total += parseFloat(balInBase);
+                    if (balInBase)
+                        total += parseFloat(balInBase);
                 }
             }
 
@@ -131,7 +132,10 @@ BinanceAPI.prototype.convertTo = async function (amount, fromCurrency, toCurrenc
 
             } else {
                 rate = ticker[toCurrency + fromCurrency];
-                resolve((1 / rate) * amount);
+                if (rate > 0)
+                    resolve((1 / rate) * amount);
+                else
+                    resolve(null);
             }
 
         });
@@ -365,5 +369,44 @@ BinanceAPI.prototype.chartHistory = async function (interval) {
             let timeArr = Array.from(ticks, x => parseFloat(x[0]));
             resolve({ prices: closedArr, times: timeArr });
         });
+    });
+};
+
+
+BinanceAPI.prototype.chartHistoryBySymbol = async function (interval, tradeCur, baseCur) {
+
+    return new Promise((resolve) => {
+
+        let symbol = tradeCur + baseCur;
+
+        this.binance.candlesticks(symbol, interval, function (ticks) {
+            let closedArr = Array.from(ticks, x => parseFloat(x[4]));
+            let timeArr = Array.from(ticks, x => parseFloat(x[0]));
+            resolve({ prices: closedArr, times: timeArr });
+        });
+    });
+};
+
+
+
+BinanceAPI.prototype.chartHistoryInBase = async function (interval, masterBaseCur) {
+
+    return new Promise((resolve) => {
+
+        let his1 = await this.chartHistoryBySymbol(interval, this.TradeCurrency, this.BaseCurrency);
+        if (masterBaseCur == this.BaseCurrency) {
+            resolve(his1);
+            return;
+        }
+
+        let his2 = await this.chartHistoryBySymbol(interval, this.BaseCurrency, this.masterBaseCur);
+        let count = Math.min(his1.length, his2.length);
+
+        for (var i = 1; i <= count; i++) {
+            his1.prices[his1.length - i] = his1.prices[his1.length - i] * his2.prices[his2.length - i];
+            if (i == count)
+                resolve(his1);
+        }
+
     });
 };
