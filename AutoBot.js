@@ -95,6 +95,7 @@ AutoBot.prototype.handler = async function () {
                 }
 
             });
+            console.log(columns);
 
         }
     }
@@ -143,6 +144,7 @@ AutoBot.prototype.handler = async function () {
                 }
 
             });
+            console.log(columns);
         }
     }
 };
