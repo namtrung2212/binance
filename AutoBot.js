@@ -52,7 +52,7 @@ AutoBot.prototype.timerHandler = async function (bot) {
 
 AutoBot.prototype.handler = async function () {
 
-    if (await this.shouldToBUY(0.5)) {
+    if (await this.shouldToBUY(0.75)) {
 
         let suggest = await this.suggestBuyPrice();
         if (suggest) {
@@ -100,7 +100,7 @@ AutoBot.prototype.handler = async function () {
         }
     }
 
-    if (await this.shouldToSELL(0.5)) {
+    if (await this.shouldToSELL(0.75)) {
 
         let suggest = await this.suggestSellPrice();
         if (suggest) {
@@ -185,7 +185,7 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclBUYPercent(2);
+        let percent = await that.caclBUYPercent();
 
         var should = percent > maxPercent;
 
@@ -193,7 +193,7 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
     });
 };
 
-AutoBot.prototype.caclBUYPercent = async function (maxPeriod) {
+AutoBot.prototype.caclBUYPercent = async function () {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -202,54 +202,28 @@ AutoBot.prototype.caclBUYPercent = async function (maxPeriod) {
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
         var macd = await that.MACD(histories);
-        if (!macd || macd.length < 10 || macd[macd.length - 1].histogram < 0) {
+        if (!macd || macd.length < 10) {
             resolve(0);
             return;
         }
 
-        var firstRight;
-        var firstRightIndex;
-        for (var i = macd.length - 1; i >= 0; i--) {
-            if (macd[i].histogram && macd[i].histogram >= 0) {
-                firstRight = macd[i];
-                firstRightIndex = i;
+        var current = macd[macd.length - 1];
+        var currentIndex = macd.length - 1;
+
+        var leftMin = current;
+        var leftMinIndex = currentIndex;
+
+        for (var i = currentIndex - 1; i >= 0; i--) {
+            if (macd[i].histogram < leftMin.histogram) {
+                leftMin = macd[i];
+                leftMinIndex = i;
             } else {
                 break;
             }
         }
-        if (!firstRight) {
-            resolve(0);
-            return;
-        }
 
-        if (macd[macd.length - 1].histogram < macd[macd.length - 2].histogram) {
-            resolve(0);
-            return;
-        }
-
-        // DUOI N LAN TANG LIEN TIEP
-        if ((macd.length - 1) - firstRightIndex + 1 < maxPeriod) {
-            resolve(0);
-            return;
-        }
-
-        var lastLeftIndex = firstRightIndex - 1;
-        var lastLeft = macd[lastLeftIndex];
-
-        var leftAverage = Math.abs(macd[lastLeftIndex].histogram);
-        var count = 1;
-        if (macd[lastLeftIndex - 1].histogram < 0) {
-            leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
-            count++;
-        }
-        if (macd[lastLeftIndex - 2].histogram < 0) {
-            leftAverage += Math.abs(macd[lastLeftIndex - 2].histogram);
-            count++;
-        }
-        leftAverage = leftAverage / count;
-
-        var rightAverage = Math.abs(macd[macd.length - 1].histogram);
-        let percent = rightAverage / (leftAverage + rightAverage);
+        var diff = current.histogram - leftMin.histogram;
+        let percent = diff / Math.abs(leftMin.histogram);
 
         resolve(percent);
     });
@@ -275,7 +249,7 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclSElLPercent(2);
+        let percent = await that.caclSElLPercent();
         var should = percent > maxPercent;
         if (should) {
             console.log(that.Symbol + " : percent = " + percent);
@@ -304,7 +278,7 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
                 other.BaseCurrency == that.BaseCurrency
                 && other.TradeCurrency != that.TradeCurrency) {
 
-                let percent = await other.caclBUYPercent(5);
+                let percent = await other.caclBUYPercent();
                 if (percent > maxPercent) {
                     resolve(true);
                     return;
@@ -320,7 +294,7 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
 };
 
 
-AutoBot.prototype.caclSElLPercent = async function (maxPeriod) {
+AutoBot.prototype.caclSElLPercent = async function () {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -330,52 +304,28 @@ AutoBot.prototype.caclSElLPercent = async function (maxPeriod) {
 
         var macd = await that.MACD(histories);
 
-        if (!macd || macd.length < 10 || macd[macd.length - 1].histogram >= 0) {
+        if (!macd || macd.length < 10) {
             resolve(0);
             return;
         }
 
-        var firstRight;
-        var firstRightIndex;
-        for (var i = macd.length - 1; i >= 0; i--) {
-            if (macd[i].histogram && macd[i].histogram < 0) {
-                firstRight = macd[i];
-                firstRightIndex = i;
+        var current = macd[macd.length - 1];
+        var currentIndex = macd.length - 1;
+
+        var leftMax = current;
+        var leftMaxIndex = currentIndex;
+
+        for (var i = currentIndex - 1; i >= 0; i--) {
+            if (macd[i].histogram > leftMax.histogram) {
+                leftMax = macd[i];
+                leftMaxIndex = i;
             } else {
                 break;
             }
         }
-        if (!firstRight) {
-            resolve(0);
-            return;
-        }
 
-        // N LAN GIAM LIEN TIEP -> SELL
-        if ((macd.length - 1) - firstRightIndex + 1 >= maxPeriod) {
-            resolve(1);
-            return;
-        }
-
-        var lastLeftIndex = firstRightIndex - 1;
-        var lastLeft = macd[lastLeftIndex];
-
-        var leftAverage = Math.abs(macd[lastLeftIndex].histogram);
-        var count = 1;
-        if (macd[lastLeftIndex - 1].histogram >= 0) {
-            leftAverage += Math.abs(macd[lastLeftIndex - 1].histogram);
-            count++;
-        }
-        if (macd[lastLeftIndex - 2].histogram >= 0) {
-            leftAverage += Math.abs(macd[lastLeftIndex - 2].histogram);
-            count++;
-        }
-        leftAverage = leftAverage / count;
-
-        var rightAverage = Math.abs(macd[macd.length - 1].histogram);
-
-        let percent = rightAverage / (leftAverage + rightAverage);
-        // if (that.TradeCurrency == "BTC" && that.BaseCurrency == "USDT")
-        //     console.log("SELL percent = " + percent);
+        var diff = leftMax.histogram - current.histogram;
+        let percent = diff / Math.abs(leftMax.histogram);
 
         resolve(percent);
     });
@@ -405,7 +355,7 @@ AutoBot.prototype.suggestBuyPrice = async function () {
     var firtPrice = lowestPrice;
     var tradableAmt = 0;
 
-    for (var i = 2; i < sellings.length; i++) {
+    for (var i = 1; i < sellings.length; i++) {
 
         let selling = sellings[i];
         if (selling.price && selling.price < 0.95 * firtPrice) {
@@ -464,7 +414,7 @@ AutoBot.prototype.suggestSellPrice = async function () {
 
     var tradableAmt = 0;
 
-    for (var i = 2; i < buyings.length; i++) {
+    for (var i = 1; i < buyings.length; i++) {
 
         let buying = buyings[i];
         if (buying.price && buying.price > 0.95 * firtPrice) {
