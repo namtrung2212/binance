@@ -363,9 +363,8 @@ BinanceAPI.prototype.sell = async function (amount, price) {
 
 BinanceAPI.prototype.chartHistory = async function (interval) {
 
-    var that = this;
     return new Promise(async function (resolve) {
-        this.binance.candlesticks(that.Symbol, interval, function (ticks) {
+        this.binance.candlesticks(this.Symbol, interval, function (ticks) {
             let closedArr = Array.from(ticks, x => parseFloat(x[4]));
             let timeArr = Array.from(ticks, x => parseFloat(x[0]));
             resolve({ prices: closedArr, times: timeArr });
