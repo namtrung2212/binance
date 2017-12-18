@@ -184,9 +184,13 @@ AutoBot.prototype.shouldToBUY = async function () {
     return new Promise(async function (resolve) {
 
         let baseBal = await that.API.getBalance(that.BaseCurrency);
-        let wannaTrade = await that.API.convertTo(baseBal, that.BaseCurrency, that.TradeCurrency);
+        let minNotional = await that.API.getMinNotionalAmount();
+        if (baseBal < minNotional) {
+            resolve(false);
+            return;
+        }
 
-        // THIEU TIEN BASE_CURRENCY
+        let wannaTrade = await that.API.convertTo(baseBal, that.BaseCurrency, that.TradeCurrency);
         let minTrade = await that.API.getMinTradeAmount();
         if (wannaTrade < minTrade) {
             resolve(false);
@@ -197,6 +201,7 @@ AutoBot.prototype.shouldToBUY = async function () {
 
         var should = percent > that.BUY_SIGNAL;
         if (should) {
+
             console.log(that.Symbol + " : percent = " + percent);
             console.log(that.Symbol + " : maxPercent = " + that.BUY_SIGNAL);
         }
@@ -357,9 +362,11 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
 AutoBot.prototype.suggestBuyPrice = async function () {
 
     let baseBal = await this.API.getBalance(this.BaseCurrency);
-    let wannaTrade = await this.API.convertTo(baseBal, this.BaseCurrency, this.TradeCurrency);
+    let minNotional = await this.API.getMinNotionalAmount();
+    if (baseBal < minNotional)
+        return null;
 
-    // THIEU TIEN BASE_CURRENCY
+    let wannaTrade = await this.API.convertTo(baseBal, this.BaseCurrency, this.TradeCurrency);
     let minTrade = await this.API.getMinTradeAmount();
     if (wannaTrade < minTrade)
         return null;
@@ -400,13 +407,18 @@ AutoBot.prototype.suggestBuyPrice = async function () {
 
     tradableAmt = baseBal / lowestPrice;
 
+    console.log(this.Symbol + " : tradableAmt1 = " + tradableAmt);
     if (tradableAmt > wannaTrade)
         tradableAmt = wannaTrade;
 
+    console.log(this.Symbol + " : tradableAmt2 = " + tradableAmt);
     if (tradableAmt < minTrade)
         return null;
 
     let result = await this.API.correctTradeOrder(tradableAmt, lowestPrice);
+
+    console.log(this.Symbol + " : correctTradeOrder = " + result);
+
     return result;
 };
 

@@ -27,6 +27,7 @@ root.bots = [];
 
 root.start = function (botsArr) {
 
+    console.log("----------------------------------------------------------------------");
     setTimeout(this.timerHandler, 1000 * 2, botsArr, 0, this);
 };
 root.timerHandler = async function (botsArr, current, root) {

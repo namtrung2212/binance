@@ -181,7 +181,7 @@ BinanceAPI.prototype.getMinTradeAmount = async function () {
     });
 };
 
-BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
+BinanceAPI.prototype.getMinNotionalAmount = async function () {
 
     return new Promise((resolve) => {
 
@@ -190,10 +190,52 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
 
             var symbols = info.symbols.filter(symbol => symbol.symbol == _this.Symbol);
             if (symbols.length <= 0) {
+                resolve(-1);
+                return;
+            }
+
+            let symbol = symbols[0];
+
+            try {
+
+                var minNotionals = symbol.filters.filter(x => x.filterType == 'MIN_NOTIONAL');
+                if (minNotionals.length <= 0) {
+                    resolve(-1);
+                    return;
+                }
+
+                var minNotional = parseFloat(minNotionals[0].minNotional);
+                resolve(minNotional);
+
+            } catch (error) {
+
+                resolve(-1);
+            }
+
+        });
+
+    }).catch(error => {
+
+        console.log("error = " + error);
+    });
+
+};
+
+BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
+
+    return new Promise((resolve) => {
+
+        var _this = this;
+        this.binance.exchangeInfo(function (info) {
+
+            console.log("1");
+            var symbols = info.symbols.filter(symbol => symbol.symbol == _this.Symbol);
+            if (symbols.length <= 0) {
                 resolve(null);
                 return;
             }
 
+            console.log("2");
             let symbol = symbols[0];
             let precision = symbol.baseAssetPrecision;
 
@@ -206,6 +248,7 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
                     return;
                 }
 
+                console.log("3");
                 let minQty = parseFloat(lotSizes[0].minQty);
                 let maxQty = parseFloat(lotSizes[0].maxQty);
                 let stepSize = parseFloat(lotSizes[0].stepSize);
@@ -219,11 +262,17 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
                     return;
                 }
 
+                console.log("4");
+                console.log("4 qty = " + qty);
+                console.log("4 price = " + price);
+                console.log("4 price*qty = " + price * qty);
+                console.log("4 minNotional = " + minNotional);
                 if ((price * qty) < minNotional) {
                     resolve(null);
                     return;
                 }
 
+                console.log("5");
                 resolve({
                     price: price.toFixed(precision),
                     amount: qty
