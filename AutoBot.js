@@ -185,7 +185,7 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclBUYPercent();
+        let percent = await that.caclBUYPercent(3);
 
         var should = percent > maxPercent;
 
@@ -193,7 +193,7 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
     });
 };
 
-AutoBot.prototype.caclBUYPercent = async function () {
+AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -222,6 +222,10 @@ AutoBot.prototype.caclBUYPercent = async function () {
             }
         }
 
+        if (Math.abs(currentIndex - leftMinIndex) < minPeriod) {
+            resolve(0);
+            return;
+        }
         var diff = current.histogram - leftMin.histogram;
         let percent = diff / Math.abs(leftMin.histogram);
 
@@ -249,7 +253,7 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclSElLPercent();
+        let percent = await that.caclSElLPercent(4);
         var should = percent > maxPercent;
         if (should) {
             console.log(that.Symbol + " : percent = " + percent);
@@ -278,7 +282,7 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
                 other.BaseCurrency == that.BaseCurrency
                 && other.TradeCurrency != that.TradeCurrency) {
 
-                let percent = await other.caclBUYPercent();
+                let percent = await other.caclBUYPercent(4);
                 if (percent > maxPercent) {
                     resolve(true);
                     return;
@@ -294,7 +298,7 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
 };
 
 
-AutoBot.prototype.caclSElLPercent = async function () {
+AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -322,6 +326,11 @@ AutoBot.prototype.caclSElLPercent = async function () {
             } else {
                 break;
             }
+        }
+
+        if (Math.abs(currentIndex - leftMaxIndex) < minPeriod) {
+            resolve(0);
+            return;
         }
 
         var diff = leftMax.histogram - current.histogram;
