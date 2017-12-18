@@ -5,20 +5,20 @@ var botsArr = [
     { trade: "BTC", base: "USDT" },
     { trade: "ETH", base: "USDT" },
     { trade: "LTC", base: "USDT" },
-    { trade: "BNB", base: "USDT" },
+    { trade: "BNB", base: "USDT" }
 
-    { trade: "XRP", base: "BTC" },
-    { trade: "ETC", base: "BTC" },
-    { trade: "XVG", base: "BTC" },
-    { trade: "ADA", base: "BTC" },
-    { trade: "TRX", base: "BTC" },
-    { trade: "POE", base: "BTC" },
-    { trade: "CTR", base: "BTC" },
-    { trade: "AMB", base: "BTC" },
-    { trade: "SNT", base: "BTC" },
+    // { trade: "XRP", base: "BTC" },
+    // { trade: "ETC", base: "BTC" },
+    // { trade: "XVG", base: "BTC" },
+    // { trade: "ADA", base: "BTC" },
+    // { trade: "TRX", base: "BTC" },
+    // { trade: "POE", base: "BTC" },
+    // { trade: "CTR", base: "BTC" },
+    // { trade: "AMB", base: "BTC" },
+    // { trade: "SNT", base: "BTC" },
 
-    { trade: "XRP", base: "ETH" },
-    { trade: "ETC", base: "ETH" }
+    // { trade: "XRP", base: "ETH" },
+    // { trade: "ETC", base: "ETH" }
 
 ];
 
