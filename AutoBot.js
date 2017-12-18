@@ -239,7 +239,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             }
         }
 
-        if (Math.abs(currentIndex - leftMinIndex) < minPeriod) {
+        if ((currentIndex - leftMinIndex + 1) < minPeriod) {
             resolve(0);
             return;
         }
@@ -316,7 +316,6 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function () {
     });
 };
 
-
 AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
 
     var that = this;
@@ -347,7 +346,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
             }
         }
 
-        if (Math.abs(currentIndex - leftMaxIndex) < minPeriod) {
+        if ((currentIndex - leftMaxIndex + 1) < minPeriod) {
             resolve(0);
             return;
         }

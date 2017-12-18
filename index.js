@@ -6,6 +6,8 @@ var botsArr = [
     { trade: "ETH", base: "USDT" },
     { trade: "LTC", base: "USDT" },
     { trade: "BNB", base: "USDT" },
+    { trade: "NEO", base: "USDT" },
+    { trade: "BCC", base: "USDT" },
 
     { trade: "XRP", base: "BTC" },
     { trade: "ETC", base: "BTC" },
