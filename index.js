@@ -35,7 +35,7 @@ root.timerHandler = async function (botsArr, current, root) {
     if (current < 0 || current >= botsArr.length)
         return;
 
-    var bot = new AutoBot(botsArr[current].trade, botsArr[current].base, "5m", 30);
+    var bot = new AutoBot(botsArr[current].trade, botsArr[current].base, "30m", 30);
     bot.init(root, "6379", "localhost");
     bot.start();
 
