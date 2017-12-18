@@ -19,6 +19,12 @@ function AutoBot(tradeCur, baseCur, MACDPeriod, interval) {
 
     this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
 
+    this.BUY_SIGNAL = 0.75;
+    this.SELL_SIGNAL = 0.75;
+
+    this.BUY_MINPERIOD = 3;
+    this.SELL_MINPERIOD = 3;
+
 };
 
 module.exports = AutoBot;
@@ -40,6 +46,8 @@ AutoBot.prototype.start = function () {
 
     console.log("Start : " + this.TradeCurrency + "-" + this.BaseCurrency + " with MACD = " + this.MACDPeriod);
 
+    console.log("----------------------------------------------------------------------");
+
     setTimeout(this.timerHandler, 1000 * 60 * this.IntervalMinute, this);
 };
 
@@ -52,13 +60,11 @@ AutoBot.prototype.timerHandler = async function (bot) {
 
 AutoBot.prototype.handler = async function () {
 
-    if (await this.shouldToBUY(0.75)) {
+    if (await this.shouldToBUY()) {
 
         let suggest = await this.suggestBuyPrice();
         if (suggest) {
             let newOrder = await this.API.buy(suggest.amount, suggest.price);
-
-            console.log("----------------------------------------------------------------------");
 
             let data = [{
 
@@ -96,18 +102,18 @@ AutoBot.prototype.handler = async function () {
 
             });
             console.log(columns);
+            console.log("----------------------------------------------------------------------");
+
 
         }
     }
 
-    if (await this.shouldToSELL(0.75)) {
+    if (await this.shouldToSELL()) {
 
         let suggest = await this.suggestSellPrice();
         if (suggest) {
 
             let newOrder = await this.API.sell(suggest.amount, suggest.price);
-
-            console.log("----------------------------------------------------------------------");
 
             let data = [{
 
@@ -145,6 +151,8 @@ AutoBot.prototype.handler = async function () {
 
             });
             console.log(columns);
+            console.log("----------------------------------------------------------------------");
+
         }
     }
 };
@@ -170,7 +178,7 @@ AutoBot.prototype.MACD = async function (histories) {
     });
 };
 
-AutoBot.prototype.shouldToBUY = async function (maxPercent) {
+AutoBot.prototype.shouldToBUY = async function () {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -185,9 +193,13 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclBUYPercent(3);
+        let percent = await that.caclBUYPercent(that.BUY_MINPERIOD);
 
-        var should = percent > maxPercent;
+        var should = percent > that.BUY_SIGNAL;
+        if (should) {
+            console.log(that.Symbol + " : percent = " + percent);
+            console.log(that.Symbol + " : maxPercent = " + that.BUY_SIGNAL);
+        }
 
         resolve(should);
     });
@@ -233,7 +245,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
     });
 };
 
-AutoBot.prototype.shouldToSELL = async function (maxPercent) {
+AutoBot.prototype.shouldToSELL = async function () {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -253,24 +265,26 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclSElLPercent(4);
-        var should = percent > maxPercent;
+        let percent = await that.caclSElLPercent(that.SELL_MINPERIOD);
+        var should = percent > that.SELL_SIGNAL;
+
+        if (!should && percent > 0.7 * that.SELL_SIGNAL) {
+            should = await that.shouldToSELL_CheckOtherBots();
+            if (should) {
+                console.log("Should SELL " + that.TradeCurrency + " by another required");
+            }
+        }
+
         if (should) {
             console.log(that.Symbol + " : percent = " + percent);
-            console.log(that.Symbol + " : maxPercent = " + maxPercent);
+            console.log(that.Symbol + " : maxPercent = " + that.SELL_SIGNAL);
         }
-        // if (!should && percent > 0.7 * maxPercent) {
-        //     should = await that.shouldToSELL_CheckOtherBots(0.75);
-        //     if (should) {
-        //         console.log("Should SELL " + that.TradeCurrency + " by another required");
-        //     }
-        // }
 
         resolve(should);
     });
 };
 
-AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
+AutoBot.prototype.shouldToSELL_CheckOtherBots = async function () {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -282,8 +296,8 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function (maxPercent) {
                 other.BaseCurrency == that.BaseCurrency
                 && other.TradeCurrency != that.TradeCurrency) {
 
-                let percent = await other.caclBUYPercent(4);
-                if (percent > maxPercent) {
+                let percent = await other.caclBUYPercent(that.BUY_MINPERIOD + 2);
+                if (percent > (that.BUY_SIGNAL + 1.25)) {
                     resolve(true);
                     return;
                 }
