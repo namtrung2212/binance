@@ -52,7 +52,7 @@ AutoBot.prototype.timerHandler = async function (bot) {
 
 AutoBot.prototype.handler = async function () {
 
-    if (await this.shouldToBUY(0.55)) {
+    if (await this.shouldToBUY(0.5)) {
 
         let suggest = await this.suggestBuyPrice();
         if (suggest) {
@@ -100,7 +100,7 @@ AutoBot.prototype.handler = async function () {
         }
     }
 
-    if (await this.shouldToSELL(0.55)) {
+    if (await this.shouldToSELL(0.5)) {
 
         let suggest = await this.suggestSellPrice();
         if (suggest) {
@@ -185,7 +185,7 @@ AutoBot.prototype.shouldToBUY = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclBUYPercent(3);
+        let percent = await that.caclBUYPercent(2);
 
         var should = percent > maxPercent;
 
@@ -275,7 +275,7 @@ AutoBot.prototype.shouldToSELL = async function (maxPercent) {
             return;
         }
 
-        let percent = await that.caclSElLPercent(4);
+        let percent = await that.caclSElLPercent(2);
         var should = percent > maxPercent;
         if (should) {
             console.log(that.Symbol + " : percent = " + percent);
