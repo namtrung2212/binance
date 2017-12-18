@@ -207,8 +207,8 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
 
-        var current = macd[macd.length - 1];
-        var currentIndex = macd.length - 1;
+        var currentIndex = macd.length - 2;
+        var current = macd[currentIndex];
 
         var leftMin = current;
         var leftMinIndex = currentIndex;
@@ -313,8 +313,8 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
             return;
         }
 
-        var current = macd[macd.length - 1];
-        var currentIndex = macd.length - 1;
+        var currentIndex = macd.length - 2;
+        var current = macd[currentIndex];
 
         var leftMax = current;
         var leftMaxIndex = currentIndex;
