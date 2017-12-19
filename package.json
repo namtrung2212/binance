@@ -36,7 +36,9 @@
     "cleanlog": "rm /home/ec2-user/.forever/autobot.log",
     "rest": "forever start -l rest.log -a RESTServer.js",
     "web": "forever start -l web.log -a WebServer.js",
-    "restart": "npm stop && git pull https://namtrung2212:Nirvana123@github.com/namtrung2212/binance.git && npm start"
+    "pull": "git pull https://namtrung2212:Nirvana123@github.com/namtrung2212/binance.git",
+    "reboot": "npm stop && npm start",
+    "refresh": "npm stop && git pull https://namtrung2212:Nirvana123@github.com/namtrung2212/binance.git && npm start"
   },
   "repository": {
     "type": "git",
