@@ -29,11 +29,11 @@ root.botConfigs = [
 root.config = {
 
     BUY_SIGNAL: 0.75,
-    SELL_SIGNAL: 0.65,
+    SELL_SIGNAL: 0.7,
 
     BUY_MINPERIOD: 4,
-    SELL_MINPERIOD: 3,
-    SELL_MAXPERIOD: 5,
+    SELL_MINPERIOD: 4,
+    SELL_MAXPERIOD: 6,
 
     redisPort: "6379",
     redisHost: "localhost"
