@@ -30,14 +30,13 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "forever start -l autobot.log  -a index.js",
-    "startall": "npm start && npm run rest && npm run web && npm run viewlog",
+    "start": "npm start && npm run rest && npm run web && npm run viewlog",
     "stop": "forever stopall",
     "viewlog": "tail -f /home/ec2-user/.forever/autobot.log",
     "cleanlog": "rm /home/ec2-user/.forever/autobot.log",
     "rest": "forever start -l rest.log -a RESTServer.js",
     "web": "forever start -l web.log -a WebServer.js",
-    "pull": "git pull && namtrung2212\nNirvana123!@#\n"
+    "restart": "npm stop && git pull https://namtrung2212:Nirvana123@github.com/namtrung2212/binance.git && npm start"
   },
   "repository": {
     "type": "git",
