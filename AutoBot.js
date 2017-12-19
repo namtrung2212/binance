@@ -20,10 +20,10 @@ function AutoBot(tradeCur, baseCur, MACDPeriod, interval) {
     this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
 
     this.BUY_SIGNAL = 0.75;
-    this.SELL_SIGNAL = 0.6;
+    this.SELL_SIGNAL = 0.65;
 
     this.BUY_MINPERIOD = 4;
-    this.SELL_MINPERIOD = 2;
+    this.SELL_MINPERIOD = 3;
 
 };
 
@@ -333,6 +333,10 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
 
         var currentIndex = macd.length - 2;
         var current = macd[currentIndex];
+        if (current.histogram < 0) {
+            resolve(1);
+            return;
+        }
 
         var leftMax = current;
         var leftMaxIndex = currentIndex;
