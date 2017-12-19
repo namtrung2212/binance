@@ -7,33 +7,27 @@ var MACD = require('technicalindicators').MACD;
 const RedisClient = require('redis');
 const BinanceAPI = require("./BinanceAPI");
 
-function AutoBot(tradeCur, baseCur, MACDPeriod, interval) {
+function AutoBot(root, current) {
 
-    this.BaseCurrency = baseCur;
-    this.TradeCurrency = tradeCur;
+    let config = root.botConfigs[current];
+
+    this.BaseCurrency = config.base;
+    this.TradeCurrency = config.trade;
     this.Symbol = this.TradeCurrency + this.BaseCurrency;
 
-    this.MACDPeriod = MACDPeriod;
+    this.MACDPeriod = config.MACD;
 
-    this.IntervalMinute = interval / 60;
+    this.IntervalMinute = config.Interval / 60;
 
     this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
 
-    this.BUY_SIGNAL = 0.75;
-    this.SELL_SIGNAL = 0.65;
+    this.BUY_SIGNAL = root.config.BUY_SIGNAL;
+    this.SELL_SIGNAL = root.config.SELL_SIGNAL;
 
-    this.BUY_MINPERIOD = 4;
-    this.SELL_MINPERIOD = 3;
+    this.BUY_MINPERIOD = root.config.BUY_MINPERIOD;
+    this.SELL_MINPERIOD = root.config.SELL_MINPERIOD;
 
-};
-
-module.exports = AutoBot;
-
-AutoBot.prototype.init = function (root, port, host) {
-
-    this.Bots = root.bots;
-
-    this.caching = RedisClient.createClient(port, host);
+    this.caching = RedisClient.createClient(root.config.redisPort, root.config.redisHost);
     // this.caching.flushall();
     this.caching.on("error", function (err) {
         console.log(err);
@@ -41,6 +35,9 @@ AutoBot.prototype.init = function (root, port, host) {
     });
 
 };
+
+module.exports = AutoBot;
+
 
 AutoBot.prototype.start = function () {
 
@@ -294,21 +291,21 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function () {
     var that = this;
     return new Promise(async function (resolve) {
 
-        for (var i = 0; i < that.Bots.length; i++) {
+        for (var i = 0; i < that.root.Bots.length; i++) {
 
-            let other = that.Bots[i];
+            let other = that.root.Bots[i];
             if (other != that &&
                 other.BaseCurrency == that.BaseCurrency
                 && other.TradeCurrency != that.TradeCurrency) {
 
-                let percent = await other.caclBUYPercent(that.BUY_MINPERIOD + 2);
-                if (percent > (that.BUY_SIGNAL + 1.25)) {
+                let percent = await other.caclBUYPercent(other.BUY_MINPERIOD + 2);
+                if (percent > (other.BUY_SIGNAL + 1.25)) {
                     resolve(true);
                     return;
                 }
 
             }
-            if (i == that.Bots.length - 1) {
+            if (i == that.root.Bots.length - 1) {
                 resolve(false);
                 return;
             }

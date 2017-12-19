@@ -1,49 +1,59 @@
 
 const AutoBot = require("./AutoBot");
 
-var botsArr = [
-    { trade: "BTC", base: "USDT" },
-    { trade: "ETH", base: "USDT" },
-    { trade: "LTC", base: "USDT" },
-    { trade: "BNB", base: "USDT" },
-    { trade: "NEO", base: "USDT" },
-    { trade: "BCC", base: "USDT" },
+var root = {};
 
-    { trade: "XRP", base: "BTC" },
-    { trade: "ETC", base: "BTC" },
-    { trade: "XVG", base: "BTC" },
-    { trade: "ADA", base: "BTC" },
-    { trade: "TRX", base: "BTC" },
-    { trade: "POE", base: "BTC" },
-    { trade: "CTR", base: "BTC" },
-    { trade: "AMB", base: "BTC" },
-    { trade: "SNT", base: "BTC" },
+root.botConfigs = [
+    { trade: "BTC", base: "USDT", MACD: "30m", Interval: 30 },
+    { trade: "ETH", base: "USDT", MACD: "30m", Interval: 30 },
+    { trade: "LTC", base: "USDT", MACD: "30m", Interval: 30 },
+    { trade: "BNB", base: "USDT", MACD: "30m", Interval: 30 },
+    { trade: "NEO", base: "USDT", MACD: "30m", Interval: 30 },
+    { trade: "BCC", base: "USDT", MACD: "30m", Interval: 30 },
 
-    { trade: "XRP", base: "ETH" },
-    { trade: "ETC", base: "ETH" }
+    { trade: "XRP", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "ETC", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "XVG", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "ADA", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "TRX", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "POE", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "CTR", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "AMB", base: "BTC", MACD: "30m", Interval: 30 },
+    { trade: "SNT", base: "BTC", MACD: "30m", Interval: 30 },
+
+    { trade: "XRP", base: "ETH", MACD: "30m", Interval: 30 },
+    { trade: "ETC", base: "ETH", MACD: "30m", Interval: 30 }
 
 ];
 
-var root = {};
-root.bots = [];
+root.config = {
 
-root.start = function (botsArr) {
+    BUY_SIGNAL: 0.75,
+    SELL_SIGNAL: 0.65,
 
-    console.log("----------------------------------------------------------------------");
-    setTimeout(this.timerHandler, 1000 * 2, botsArr, 0, this);
+    BUY_MINPERIOD: 4,
+    SELL_MINPERIOD: 3,
+
+    redisPort: "6379",
+    redisHost: "localhost"
 };
-root.timerHandler = async function (botsArr, current, root) {
 
-    if (current < 0 || current >= botsArr.length)
+root.Bots = [];
+
+root.start = function () {
+    console.log("----------------------------------------------------------------------");
+    setTimeout(this.timerHandler, 1000 * 2, this, 0);
+};
+
+root.timerHandler = async function (root, current) {
+
+    if (current < 0 || current >= root.botConfigs.length)
         return;
 
-    var bot = new AutoBot(botsArr[current].trade, botsArr[current].base, "30m", 30);
-    bot.init(root, "6379", "localhost");
+    var bot = new AutoBot(root, current);
     bot.start();
-
-    root.bots.push(bot);
-
-    setTimeout(root.timerHandler, 1000 * 10, botsArr, current + 1, root);
+    root.Bots.push(bot);
+    setTimeout(root.timerHandler, 1000 * 10, root, current + 1);
 };
 
-root.start(botsArr);
+root.start();
