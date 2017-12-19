@@ -20,10 +20,10 @@ function AutoBot(tradeCur, baseCur, MACDPeriod, interval) {
     this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
 
     this.BUY_SIGNAL = 0.75;
-    this.SELL_SIGNAL = 0.75;
+    this.SELL_SIGNAL = 0.6;
 
-    this.BUY_MINPERIOD = 3;
-    this.SELL_MINPERIOD = 3;
+    this.BUY_MINPERIOD = 4;
+    this.SELL_MINPERIOD = 2;
 
 };
 
