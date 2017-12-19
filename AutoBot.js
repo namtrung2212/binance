@@ -26,6 +26,7 @@ function AutoBot(root, current) {
 
     this.BUY_MINPERIOD = root.config.BUY_MINPERIOD;
     this.SELL_MINPERIOD = root.config.SELL_MINPERIOD;
+    this.SELL_MAXPERIOD = root.config.SELL_MAXPERIOD;
 
     this.caching = RedisClient.createClient(root.config.redisPort, root.config.redisHost);
     // this.caching.flushall();
@@ -267,7 +268,7 @@ AutoBot.prototype.shouldToSELL = async function () {
             return;
         }
 
-        let percent = await that.caclSElLPercent(that.SELL_MINPERIOD);
+        let percent = await that.caclSElLPercent(that.SELL_MINPERIOD, that.SELL_MAXPERIOD);
         var should = percent > that.SELL_SIGNAL;
 
         if (!should && percent > 0.7 * that.SELL_SIGNAL) {
@@ -313,7 +314,7 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function () {
     });
 };
 
-AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
+AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
     var that = this;
     return new Promise(async function (resolve) {
@@ -349,6 +350,11 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod) {
 
         if ((currentIndex - leftMaxIndex + 1) < minPeriod) {
             resolve(0);
+            return;
+        }
+
+        if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
+            resolve(1);
             return;
         }
 

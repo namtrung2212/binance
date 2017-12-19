@@ -33,6 +33,7 @@ root.config = {
 
     BUY_MINPERIOD: 4,
     SELL_MINPERIOD: 3,
+    SELL_MAXPERIOD: 5,
 
     redisPort: "6379",
     redisHost: "localhost"
