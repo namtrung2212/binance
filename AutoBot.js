@@ -224,6 +224,10 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
 
         var currentIndex = macd.length - 2;
         var current = macd[currentIndex];
+        if (current.histogram <= 0) {
+            resolve(0);
+            return;
+        }
 
         var leftMin = current;
         var leftMinIndex = currentIndex;
@@ -271,12 +275,12 @@ AutoBot.prototype.shouldToSELL = async function () {
         let percent = await that.caclSElLPercent(that.SELL_MINPERIOD, that.SELL_MAXPERIOD);
         var should = percent > that.SELL_SIGNAL;
 
-        if (!should && percent > 0.7 * that.SELL_SIGNAL) {
-            should = await that.shouldToSELL_CheckOtherBots();
-            if (should) {
-                console.log("Should SELL " + that.TradeCurrency + " by another required");
-            }
-        }
+        // if (!should && percent > 0.7 * that.SELL_SIGNAL) {
+        //     should = await that.shouldToSELL_CheckOtherBots();
+        //     if (should) {
+        //         console.log("Should SELL " + that.TradeCurrency + " by another required");
+        //     }
+        // }
 
         if (should) {
             console.log(that.Symbol + " : percent = " + percent);
@@ -331,8 +335,8 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var currentIndex = macd.length - 2;
         var current = macd[currentIndex];
-        if (current.histogram < 0) {
-            resolve(1);
+        if (current.histogram >= 0) {
+            resolve(0);
             return;
         }
 
