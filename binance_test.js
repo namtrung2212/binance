@@ -2,7 +2,7 @@
 
 const BinanceAPI = require("./BinanceAPI");
 
-//var API = new BinanceAPI("XRP", "BTC");
+var API = new BinanceAPI("ETH", "USDT");
 
 
 // API.getTotalBalanceInBase().then(function (obj) {
@@ -35,50 +35,9 @@ var moment = require('moment');
 // console.log(moment().utcOffset(7).format("YYYY-MM-DD HH:mm"));
 
 
-var columnify = require('columnify');
 
-let data = [{
+API.getCurrentPrice().then(function (obj) {
 
-    Time: moment().utcOffset(7).format("YYYY-MM-DD HH:mm"),
-    Type: "BUY",
-    Qty: 24.234325,
-    Coin: "BTC",
-    Price: 0.02337964,
-    Ex: "BTC/USDT"
-
-}, {
-
-    Time: moment().utcOffset(7).format("YYYY-MM-DD HH:mm"),
-    Type: "BUY",
-    Qty: 34.2343,
-    Coin: "BTC",
-    Price: 0.02364,
-    Ex: "BTC/USD"
-
-}];
-var columns = columnify(data, {
-    showHeaders: false,
-    config: {
-        Type: {
-            align: 'center',
-            minWidth: 5,
-            maxWidth: 10
-        },
-        Qty: {
-            align: 'right',
-            minWidth: 15
-        },
-        Coin: {
-            align: 'center'
-        },
-        Price: {
-            align: 'right',
-            minWidth: 15
-        },
-        Ex: {
-            align: 'center'
-        }
-    }
-
+    console.log(obj);
 });
-console.log(columns);
+

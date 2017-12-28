@@ -3,6 +3,7 @@ var moment = require('moment');
 var format = require('string-format');
 var columnify = require('columnify');
 var MACD = require('technicalindicators').MACD;
+var SMA = require('technicalindicators').SMA;
 
 const RedisClient = require('redis');
 const BinanceAPI = require("./BinanceAPI");
@@ -176,6 +177,16 @@ AutoBot.prototype.MACD = async function (histories) {
     });
 };
 
+AutoBot.prototype.MovingAverage = async function (period, histories) {
+
+    return new Promise((resolve) => {
+
+        let output = SMA.calculate({ period: period, values: histories.prices })
+
+        resolve(output);
+    });
+};
+
 AutoBot.prototype.shouldToBUY = async function () {
 
     var that = this;
@@ -216,11 +227,37 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
+        var MA7 = await that.MovingAverage(7, histories);
+        if (!MA7 || MA7.length < 10) {
+            resolve(0);
+            return;
+        }
+        if (MA7[MA7.length - 3] >= MA7[MA7.length - 2] || MA7[MA7.length - 2] >= MA7[MA7.length - 1]) {
+            resolve(0);
+            return;
+        }
+
+        var MA25 = await that.MovingAverage(25, histories);
+        if (!MA25 || MA25.length < 10) {
+            resolve(0);
+            return;
+        }
+        if (MA25[MA25.length - 3] >= MA25[MA25.length - 2] || MA25[MA25.length - 2] >= MA25[MA25.length - 1]) {
+            resolve(0);
+            return;
+        }
+
+        if (MA7[MA7.length - 1] < MA25[MA25.length - 1] || MA7[MA7.length - 2] < MA25[MA25.length - 2]) {
+            resolve(0);
+            return;
+        }
+
         var macd = await that.MACD(histories);
         if (!macd || macd.length < 10) {
             resolve(0);
             return;
         }
+
 
         var currentIndex = macd.length - 2;
         var current = macd[currentIndex];
@@ -326,6 +363,42 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
+        var MA7 = await that.MovingAverage(7, histories);
+        if (!MA7 || MA7.length < 10) {
+            resolve(0);
+            return;
+        }
+        if (MA7[MA7.length - 2] > MA7[MA7.length - 1]) {
+            resolve(1);
+            return;
+        }
+
+        var MA25 = await that.MovingAverage(25, histories);
+        if (!MA25 || MA25.length < 10) {
+            resolve(0);
+            return;
+        }
+
+        if (MA7[MA7.length - 1] < MA25[MA25.length - 1]) {
+            resolve(1);
+            return;
+        }
+
+
+        var lastTrades = await that.API.trades();
+        if (lastTrades != null && lastTrades.length > 0
+            && lastTrades[lastTrades.length - 1].isBuyer == true
+            && lastTrades[lastTrades.length - 1].isBestMatch == true) {
+
+            var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
+
+            let suggest = await that.suggestBuyPrice();
+            if (suggest && suggest.price < boughtPrice * 0.9) {
+                resolve(1);
+                return;
+            }
+        }
+
         var macd = await that.MACD(histories);
 
         if (!macd || macd.length < 10) {
@@ -357,10 +430,10 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-        if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
-            resolve(1);
-            return;
-        }
+        // if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
+        //     resolve(1);
+        //     return;
+        // }
 
         var diff = leftMax.histogram - current.histogram;
         let percent = diff / Math.abs(leftMax.histogram);
