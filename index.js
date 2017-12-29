@@ -10,7 +10,7 @@ root.botConfigs = [
     { trade: "LTC", base: "USDT", MACD: "30m", Interval: 30 },
     { trade: "BNB", base: "USDT", MACD: "30m", Interval: 30 },
     { trade: "NEO", base: "USDT", MACD: "30m", Interval: 30 },
-    { trade: "BCC", base: "USDT", MACD: "30m", Interval: 30 }
+    { trade: "BCC", base: "USDT", MACD: "30m", Interval: 30 },
 
     // { trade: "XRP", base: "BTC", MACD: "30m", Interval: 30 },
     // { trade: "ETC", base: "BTC", MACD: "30m", Interval: 30 },
@@ -22,8 +22,8 @@ root.botConfigs = [
     // { trade: "AMB", base: "BTC", MACD: "30m", Interval: 30 },
     // { trade: "SNT", base: "BTC", MACD: "30m", Interval: 30 },
 
-    // { trade: "XRP", base: "ETH", MACD: "30m", Interval: 30 },
-    // { trade: "ETC", base: "ETH", MACD: "30m", Interval: 30 }
+    { trade: "XRP", base: "ETH", MACD: "30m", Interval: 30 },
+    { trade: "ETC", base: "ETH", MACD: "30m", Interval: 30 }
 
 ];
 

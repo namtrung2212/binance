@@ -228,14 +228,12 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
         var _this = this;
         this.binance.exchangeInfo(function (info) {
 
-            console.log("1");
             var symbols = info.symbols.filter(symbol => symbol.symbol == _this.Symbol);
             if (symbols.length <= 0) {
                 resolve(null);
                 return;
             }
 
-            console.log("2");
             let symbol = symbols[0];
             let precision = symbol.baseAssetPrecision;
 
@@ -248,7 +246,6 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
                     return;
                 }
 
-                console.log("3");
                 let minQty = parseFloat(lotSizes[0].minQty);
                 let maxQty = parseFloat(lotSizes[0].maxQty);
                 let stepSize = parseFloat(lotSizes[0].stepSize);
@@ -262,17 +259,11 @@ BinanceAPI.prototype.correctTradeOrder = async function (value, price) {
                     return;
                 }
 
-                console.log("4");
-                console.log("4 qty = " + qty);
-                console.log("4 price = " + price);
-                console.log("4 price*qty = " + price * qty);
-                console.log("4 minNotional = " + minNotional);
                 if ((price * qty) < minNotional) {
                     resolve(null);
                     return;
                 }
 
-                console.log("5");
                 resolve({
                     price: price.toFixed(precision),
                     amount: qty

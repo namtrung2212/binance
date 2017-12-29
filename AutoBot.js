@@ -320,8 +320,8 @@ AutoBot.prototype.shouldToSELL = async function () {
         // }
 
         if (should) {
-            console.log(that.Symbol + " : percent = " + percent);
-            console.log(that.Symbol + " : maxPercent = " + that.SELL_SIGNAL);
+            console.log(that.Symbol + " : percent1 = " + percent);
+            console.log(that.Symbol + " : maxPercent1 = " + that.SELL_SIGNAL);
         }
 
         resolve(should);
@@ -368,6 +368,13 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             resolve(0);
             return;
         }
+
+        if (that.BaseCurrency == "USDT" || that.TradeCurrency == "ETH") {
+
+            console.log("MA7[MA7.length - 1] = " + MA7[MA7.length - 1]);
+            console.log("MA7[MA7.length - 2] = " + MA7[MA7.length - 2]);
+        }
+
         if (MA7[MA7.length - 2] > MA7[MA7.length - 1]) {
             resolve(1);
             return;
