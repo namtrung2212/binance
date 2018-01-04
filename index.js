@@ -35,10 +35,10 @@ root.botConfigs = [
 
 root.config = {
 
-    BUY_SIGNAL: 0.75,
+    BUY_SIGNAL: 0.7,
     SELL_SIGNAL: 0.7,
 
-    BUY_MINPERIOD: 4,
+    BUY_MINPERIOD: 3,
     SELL_MINPERIOD: 2,
     SELL_MAXPERIOD: 3,
 

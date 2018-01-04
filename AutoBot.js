@@ -266,27 +266,27 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
 
-        // var leftMin = current;
-        // var leftMinIndex = currentIndex;
+        var leftMin = current;
+        var leftMinIndex = currentIndex;
 
-        // for (var i = currentIndex - 1; i >= 0; i--) {
-        //     if (macd[i].histogram < leftMin.histogram) {
-        //         leftMin = macd[i];
-        //         leftMinIndex = i;
-        //     } else {
-        //         break;
-        //     }
-        // }
+        for (var i = currentIndex - 1; i >= 0; i--) {
+            if (macd[i].histogram < leftMin.histogram) {
+                leftMin = macd[i];
+                leftMinIndex = i;
+            } else {
+                break;
+            }
+        }
 
-        // if ((currentIndex - leftMinIndex + 1) < minPeriod) {
-        //     resolve(0);
-        //     return;
-        // }
-        // var diff = current.histogram - leftMin.histogram;
-        // let percent = diff / Math.abs(leftMin.histogram);
+        if ((currentIndex - leftMinIndex + 1) < minPeriod) {
+            resolve(0);
+            return;
+        }
+        var diff = current.histogram - leftMin.histogram;
+        let percent = diff / Math.abs(leftMin.histogram);
 
-        // resolve(percent);
-        resolve(1);
+        resolve(percent);
+        // resolve(1);
     });
 };
 
