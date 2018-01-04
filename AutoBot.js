@@ -386,7 +386,6 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-
         var lastTrades = await that.API.trades();
         if (lastTrades != null && lastTrades.length > 0
             && lastTrades[lastTrades.length - 1].isBuyer == true) {
@@ -394,11 +393,13 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
 
             let suggest = await that.suggestSellPrice();
+
             if (suggest && suggest.price < boughtPrice * 0.8) {
                 resolve(0);
                 return;
             }
-            if (suggest && suggest.price > boughtPrice * 1.05) {
+
+            if (suggest && suggest.price > boughtPrice * 1.04) {
                 console.log("SELL AT " + suggest.price);
                 resolve(1);
                 return;
@@ -496,17 +497,13 @@ AutoBot.prototype.suggestBuyPrice = async function () {
 
     tradableAmt = baseBal / lowestPrice;
 
-    console.log(this.Symbol + " : tradableAmt1 = " + tradableAmt);
     if (tradableAmt > wannaTrade)
         tradableAmt = wannaTrade;
 
-    console.log(this.Symbol + " : tradableAmt2 = " + tradableAmt);
     if (tradableAmt < minTrade)
         return null;
 
     let result = await this.API.correctTradeOrder(tradableAmt, lowestPrice);
-
-    console.log(this.Symbol + " : correctTradeOrder = " + result);
 
     return result;
 };
