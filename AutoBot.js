@@ -407,7 +407,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
             let suggest = await that.suggestSellPrice();
 
-            if (suggest && suggest.price < boughtPrice * 0.8) {
+            if (suggest && suggest.price < boughtPrice * 0.9) {
                 resolve(0);
                 return;
             }
