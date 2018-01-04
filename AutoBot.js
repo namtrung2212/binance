@@ -259,6 +259,19 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         }
 
 
+        var lastTrades = await that.API.trades();
+        if (lastTrades != null && lastTrades.length > 0
+            && lastTrades[lastTrades.length - 1].isBuyer == false) {
+
+            var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
+            var minuteQty = moment.utc().diff(sellAt, 'minutes');
+
+            if (minuteQty < 15) {
+                resolve(0);
+                return;
+            }
+        }
+
         var currentIndex = macd.length - 2;
         var current = macd[currentIndex];
         if (current.histogram <= 0) {

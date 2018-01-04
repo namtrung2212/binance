@@ -5,7 +5,7 @@ var root = {};
 
 root.botConfigs = [
 
-    { trade: "BTC", base: "USDT", MACD: "5m", Interval: 30 },
+    // { trade: "BTC", base: "USDT", MACD: "5m", Interval: 30 },
     { trade: "ETH", base: "USDT", MACD: "5m", Interval: 30 },
     { trade: "LTC", base: "USDT", MACD: "5m", Interval: 30 },
     { trade: "BNB", base: "USDT", MACD: "5m", Interval: 30 },
