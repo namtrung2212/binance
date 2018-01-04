@@ -227,12 +227,12 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
-        var MA11 = await that.MovingAverage(11, histories);
-        if (!MA11 || MA11.length < 10) {
+        var MA9 = await that.MovingAverage(9, histories);
+        if (!MA9 || MA9.length < 10) {
             resolve(0);
             return;
         }
-        if (MA11[MA11.length - 3] >= MA11[MA11.length - 2] || MA11[MA11.length - 2] >= MA11[MA11.length - 1]) {
+        if (MA9[MA9.length - 3] >= MA9[MA9.length - 2] || MA9[MA9.length - 2] >= MA9[MA9.length - 1]) {
             resolve(0);
             return;
         }
@@ -247,7 +247,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
 
-        if (MA11[MA11.length - 1] < MA25[MA25.length - 1] || MA11[MA11.length - 2] < MA25[MA25.length - 2]) {
+        if (MA9[MA9.length - 1] < MA25[MA25.length - 1] || MA9[MA9.length - 2] < MA25[MA25.length - 2]) {
             resolve(0);
             return;
         }
@@ -364,13 +364,13 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
-        var MA11 = await that.MovingAverage(11, histories);
-        if (!MA11 || MA11.length < 10) {
+        var MA9 = await that.MovingAverage(9, histories);
+        if (!MA9 || MA9.length < 10) {
             resolve(0);
             return;
         }
 
-        if (MA11[MA11.length - 2] > MA11[MA11.length - 1]) {
+        if (MA9[MA9.length - 2] > MA9[MA9.length - 1]) {
             resolve(1);
             return;
         }
@@ -381,7 +381,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-        if (MA11[MA11.length - 1] < MA25[MA25.length - 1]) {
+        if (MA9[MA9.length - 1] < MA25[MA25.length - 1]) {
             resolve(1);
             return;
         }
@@ -389,14 +389,18 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var lastTrades = await that.API.trades();
         if (lastTrades != null && lastTrades.length > 0
-            && lastTrades[lastTrades.length - 1].isBuyer == true
-            && lastTrades[lastTrades.length - 1].isBestMatch == true) {
+            && lastTrades[lastTrades.length - 1].isBuyer == true) {
 
             var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
 
             let suggest = await that.suggestSellPrice();
             if (suggest && suggest.price < boughtPrice * 0.8) {
                 resolve(0);
+                return;
+            }
+            if (suggest && suggest.price > boughtPrice * 1.05) {
+                console.log("SELL AT " + suggest.price);
+                resolve(1);
                 return;
             }
         }
