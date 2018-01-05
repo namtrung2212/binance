@@ -232,16 +232,19 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             resolve(0);
             return;
         }
-        if (MA9[MA9.length - 3] >= MA9[MA9.length - 2] || MA9[MA9.length - 2] >= MA9[MA9.length - 1]) {
-            resolve(0);
-            return;
-        }
 
         var MA25 = await that.MovingAverage(25, histories);
         if (!MA25 || MA25.length < 10) {
             resolve(0);
             return;
         }
+
+        if (MA9[MA9.length - 3] >= MA9[MA9.length - 2] || MA9[MA9.length - 2] >= MA9[MA9.length - 1]) {
+            resolve(0);
+            return;
+        }
+
+
         if (MA25[MA25.length - 3] >= MA25[MA25.length - 2] || MA25[MA25.length - 2] >= MA25[MA25.length - 1]) {
             resolve(0);
             return;
@@ -283,7 +286,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         var leftMinIndex = currentIndex;
 
         for (var i = currentIndex - 1; i >= 0; i--) {
-            if (macd[i].histogram < leftMin.histogram) {
+            if (macd[i].histogram > 0 && macd[i].histogram < leftMin.histogram) {
                 leftMin = macd[i];
                 leftMinIndex = i;
             } else {
@@ -296,7 +299,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
         var diff = current.histogram - leftMin.histogram;
-        let percent = diff / Math.abs(leftMin.histogram);
+        let percent = diff / Math.abs(current.histogram);
 
         resolve(percent);
         // resolve(1);
