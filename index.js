@@ -18,9 +18,9 @@ root.botConfigs = [
     { trade: "MANA", base: "BTC", MACD: "5m", Interval: 30 },
     { trade: "BQX", base: "BTC", MACD: "5m", Interval: 30 },
     { trade: "POE", base: "BTC", MACD: "5m", Interval: 30 },
-    { trade: "BRD", base: "BTC", MACD: "5m", Interval: 30 }
+    { trade: "BRD", base: "BTC", MACD: "5m", Interval: 30 },
 
-    // { trade: "XRP", base: "BTC", MACD: "5m", Interval: 30 },
+    { trade: "XRP", base: "BTC", MACD: "5m", Interval: 30 }
     // { trade: "ETC", base: "BTC", MACD: "5m", Interval: 30 },
     // { trade: "XVG", base: "BTC", MACD: "5m", Interval: 30 },
     // { trade: "ADA", base: "BTC", MACD: "5m", Interval: 30 },

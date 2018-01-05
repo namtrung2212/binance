@@ -382,19 +382,30 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             resolve(0);
             return;
         }
-
-        if (MA9[MA9.length - 2] > MA9[MA9.length - 1]) {
-            resolve(1);
-            return;
-        }
-
         var MA25 = await that.MovingAverage(25, histories);
         if (!MA25 || MA25.length < 10) {
             resolve(0);
             return;
         }
 
+        if (MA9[MA9.length - 2] > MA9[MA9.length - 1]) {
+            resolve(1);
+            return;
+        }
+
         if (MA9[MA9.length - 1] < MA25[MA25.length - 1]) {
+            resolve(1);
+            return;
+        }
+
+        var macd = await that.MACD(histories);
+        if (!macd || macd.length < 10) {
+            resolve(0);
+            return;
+        }
+
+        if (macd[macd.length - 3].histogram < macd[macd.length - 2].histogram
+            && macd[macd.length - 2].histogram < macd[macd.length - 1].histogram) {
             resolve(1);
             return;
         }
@@ -410,31 +421,20 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
             let suggest = await that.suggestSellPrice();
 
-            if (suggest && suggest.price < boughtPrice * 0.9) {
-                resolve(0);
-                return;
-            }
-
             if (suggest && suggest.price > boughtPrice * 1.04) {
                 console.log("SELL AT " + suggest.price);
                 resolve(1);
                 return;
             }
-        }
 
-        var macd = await that.MACD(histories);
-
-        if (!macd || macd.length < 10) {
-            resolve(0);
-            return;
+            if (suggest && suggest.price < boughtPrice * 0.8) {
+                resolve(0);
+                return;
+            }
         }
 
         var currentIndex = macd.length - 2;
         var current = macd[currentIndex];
-        if (current.histogram >= 0) {
-            resolve(0);
-            return;
-        }
 
         var leftMax = current;
         var leftMaxIndex = currentIndex;
