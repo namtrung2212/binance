@@ -404,8 +404,8 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-        if (macd[macd.length - 3].histogram < macd[macd.length - 2].histogram
-            && macd[macd.length - 2].histogram < macd[macd.length - 1].histogram) {
+        if (macd[macd.length - 3].histogram > macd[macd.length - 2].histogram
+            || macd[macd.length - 2].histogram > macd[macd.length - 1].histogram) {
             resolve(1);
             return;
         }
