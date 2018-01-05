@@ -38,7 +38,7 @@ root.config = {
     BUY_SIGNAL: 0.7,
     SELL_SIGNAL: 0.7,
 
-    BUY_MINPERIOD: 2,
+    BUY_MINPERIOD: 1,
     SELL_MINPERIOD: 1,
     SELL_MAXPERIOD: 1,
 

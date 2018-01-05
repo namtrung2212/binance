@@ -294,7 +294,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             }
         }
 
-        if ((currentIndex - leftMinIndex + 1) < minPeriod) {
+        if ((currentIndex - leftMinIndex + 1) <= minPeriod) {
             resolve(0);
             return;
         }
