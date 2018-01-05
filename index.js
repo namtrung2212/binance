@@ -39,8 +39,8 @@ root.config = {
     SELL_SIGNAL: 0.7,
 
     BUY_MINPERIOD: 3,
-    SELL_MINPERIOD: 2,
-    SELL_MAXPERIOD: 3,
+    SELL_MINPERIOD: 1,
+    SELL_MAXPERIOD: 1,
 
     redisPort: "6379",
     redisHost: "localhost"

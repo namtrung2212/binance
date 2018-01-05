@@ -405,6 +405,9 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
             var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
 
+            var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
+            var minuteQty = moment.utc().diff(sellAt, 'minutes');
+
             let suggest = await that.suggestSellPrice();
 
             if (suggest && suggest.price < boughtPrice * 0.9) {
@@ -445,15 +448,15 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             }
         }
 
-        if ((currentIndex - leftMaxIndex + 1) < minPeriod) {
-            resolve(0);
-            return;
-        }
-
-        // if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
-        //     resolve(1);
+        // if ((currentIndex - leftMaxIndex + 1) < minPeriod) {
+        //     resolve(0);
         //     return;
         // }
+
+        if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
+            resolve(1);
+            return;
+        }
 
         var diff = leftMax.histogram - current.histogram;
         let percent = diff / Math.abs(leftMax.histogram);
