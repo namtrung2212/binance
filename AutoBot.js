@@ -227,8 +227,8 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
-        var MA9 = await that.MovingAverage(9, histories);
-        if (!MA9 || MA9.length < 10) {
+        var MA11 = await that.MovingAverage(11, histories);
+        if (!MA11 || MA11.length < 10) {
             resolve(0);
             return;
         }
@@ -239,7 +239,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
 
-        if (MA9[MA9.length - 3] >= MA9[MA9.length - 2] || MA9[MA9.length - 2] >= MA9[MA9.length - 1]) {
+        if (MA11[MA11.length - 3] >= MA11[MA11.length - 2] || MA11[MA11.length - 2] >= MA11[MA11.length - 1]) {
             resolve(0);
             return;
         }
@@ -250,7 +250,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
 
-        if (MA9[MA9.length - 1] < MA25[MA25.length - 1] || MA9[MA9.length - 2] < MA25[MA25.length - 2]) {
+        if (MA11[MA11.length - 1] < MA25[MA25.length - 1] || MA11[MA11.length - 2] < MA25[MA25.length - 2]) {
             resolve(0);
             return;
         }
@@ -380,8 +380,8 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         var histories = await that.API.chartHistory(that.MACDPeriod);
         //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
-        var MA9 = await that.MovingAverage(9, histories);
-        if (!MA9 || MA9.length < 10) {
+        var MA11 = await that.MovingAverage(11, histories);
+        if (!MA11 || MA11.length < 10) {
             resolve(0);
             return;
         }
@@ -391,12 +391,12 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-        if (MA9[MA9.length - 2] > MA9[MA9.length - 1]) {
+        if (MA11[MA11.length - 2] > MA11[MA11.length - 1]) {
             resolve(1);
             return;
         }
 
-        if (MA9[MA9.length - 1] < MA25[MA25.length - 1]) {
+        if (MA11[MA11.length - 1] < MA25[MA25.length - 1]) {
             resolve(1);
             return;
         }
