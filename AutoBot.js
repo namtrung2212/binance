@@ -224,8 +224,20 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
     var that = this;
     return new Promise(async function (resolve) {
 
+        var lastTrades = await that.API.trades();
+        if (lastTrades == null || lastTrades.length <= 0 || lastTrades[lastTrades.length - 1].isBuyer == true) {
+            resolve(0);
+            return;
+        }
+
+        var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
+        var minuteQty = moment.utc().diff(sellAt, 'minutes');
+        if (minuteQty < 15) {
+            resolve(0);
+            return;
+        }
+
         var histories = await that.API.chartHistory(that.MACDPeriod);
-        //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
         var MA11 = await that.MovingAverage(11, histories);
         if (!MA11 || MA11.length < 10) {
@@ -244,64 +256,53 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
             return;
         }
 
-
-        if (MA25[MA25.length - 3] >= MA25[MA25.length - 2] || MA25[MA25.length - 2] >= MA25[MA25.length - 1]) {
-            resolve(0);
-            return;
-        }
-
         if (MA11[MA11.length - 1] < MA25[MA25.length - 1] || MA11[MA11.length - 2] < MA25[MA25.length - 2]) {
             resolve(0);
             return;
         }
 
-        var macd = await that.MACD(histories);
-        if (!macd || macd.length < 10) {
-            resolve(0);
+        var diff1 = MA11[MA11.length - 1] - MA25[MA25.length - 1];
+        var diff2 = MA11[MA11.length - 2] - MA25[MA25.length - 2];
+        var diff3 = MA11[MA11.length - 3] - MA25[MA25.length - 3];
+        if (diff1 > 0 && diff2 > 0 && diff3 > 0 && diff1 > diff2 && diff2 > diff3) {
+            resolve(1);
             return;
         }
+        resolve(0);
 
+        // var macd = await that.MACD(histories);
+        // if (!macd || macd.length < 10) {
+        //     resolve(0);
+        //     return;
+        // }
 
-        var lastTrades = await that.API.trades();
-        if (lastTrades != null && lastTrades.length > 0
-            && lastTrades[lastTrades.length - 1].isBuyer == false) {
+        // var currentIndex = macd.length - 2;
+        // var current = macd[currentIndex];
+        // if (current.histogram <= 0) {
+        //     resolve(0);
+        //     return;
+        // }
 
-            var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
-            var minuteQty = moment.utc().diff(sellAt, 'minutes');
+        // var leftMin = current;
+        // var leftMinIndex = currentIndex;
 
-            if (minuteQty < 15) {
-                resolve(0);
-                return;
-            }
-        }
+        // for (var i = currentIndex - 1; i >= 0; i--) {
+        //     if (macd[i].histogram > 0 && macd[i].histogram < leftMin.histogram) {
+        //         leftMin = macd[i];
+        //         leftMinIndex = i;
+        //     } else {
+        //         break;
+        //     }
+        // }
 
-        var currentIndex = macd.length - 2;
-        var current = macd[currentIndex];
-        if (current.histogram <= 0) {
-            resolve(0);
-            return;
-        }
+        // if ((currentIndex - leftMinIndex + 1) <= minPeriod) {
+        //     resolve(0);
+        //     return;
+        // }
+        // var diff = current.histogram - leftMin.histogram;
+        // let percent = diff / Math.abs(current.histogram);
 
-        var leftMin = current;
-        var leftMinIndex = currentIndex;
-
-        for (var i = currentIndex - 1; i >= 0; i--) {
-            if (macd[i].histogram > 0 && macd[i].histogram < leftMin.histogram) {
-                leftMin = macd[i];
-                leftMinIndex = i;
-            } else {
-                break;
-            }
-        }
-
-        if ((currentIndex - leftMinIndex + 1) <= minPeriod) {
-            resolve(0);
-            return;
-        }
-        var diff = current.histogram - leftMin.histogram;
-        let percent = diff / Math.abs(current.histogram);
-
-        resolve(percent);
+        // resolve(percent);
         // resolve(1);
     });
 };
@@ -336,10 +337,10 @@ AutoBot.prototype.shouldToSELL = async function () {
         //     }
         // }
 
-        if (should) {
-            console.log(that.Symbol + " : percent1 = " + percent);
-            console.log(that.Symbol + " : maxPercent1 = " + that.SELL_SIGNAL);
-        }
+        // if (should) {
+        //     console.log(that.Symbol + " : percent1 = " + percent);
+        //     console.log(that.Symbol + " : maxPercent1 = " + that.SELL_SIGNAL);
+        // }
 
         resolve(should);
     });
@@ -377,8 +378,40 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
     var that = this;
     return new Promise(async function (resolve) {
 
+        var lastTrades = await that.API.trades();
+        if (lastTrades == null || lastTrades.length <= 0
+            || lastTrades[lastTrades.length - 1].isBuyer == false) {
+            resolve(0);
+            return;
+        }
+
+        var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
+        var minuteQty = moment.utc().diff(sellAt, 'minutes');
+        if (minuteQty < 15) {
+            resolve(0);
+            return;
+
+        }
+
+        let suggest = await that.suggestSellPrice();
+        if (suggest == null || suggest == undefined) {
+            resolve(0);
+            return;
+        }
+
+        var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
+        if (suggest.price < boughtPrice * 0.9) {
+            resolve(0);
+            return;
+        }
+
+        if (suggest.price > boughtPrice * 1.04) {
+            console.log("SELL" + that.Symbol + " : REASON 1 (benifit > 4%) : " + suggest.price);
+            resolve(1);
+            return;
+        }
+
         var histories = await that.API.chartHistory(that.MACDPeriod);
-        //var histories = await that.API.chartHistoryInBase(that.MACDPeriod, "USDT");
 
         var MA11 = await that.MovingAverage(11, histories);
         if (!MA11 || MA11.length < 10) {
@@ -392,79 +425,61 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         }
 
         if (MA11[MA11.length - 2] > MA11[MA11.length - 1]) {
+            console.log("SELL" + that.Symbol + " : REASON 2 : M11 is going down");
             resolve(1);
             return;
         }
 
         if (MA11[MA11.length - 1] < MA25[MA25.length - 1]) {
+            console.log("SELL" + that.Symbol + " : REASON 3 : M11 is going down under MA25");
             resolve(1);
             return;
         }
 
-        var macd = await that.MACD(histories);
-        if (!macd || macd.length < 10) {
-            resolve(0);
-            return;
-        }
+        resolve(0);
 
-        if (macd[macd.length - 3].histogram > macd[macd.length - 2].histogram
-            || macd[macd.length - 2].histogram > macd[macd.length - 1].histogram) {
-            resolve(1);
-            return;
-        }
-
-        var lastTrades = await that.API.trades();
-        if (lastTrades != null && lastTrades.length > 0
-            && lastTrades[lastTrades.length - 1].isBuyer == true) {
-
-            var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
-
-            var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
-            var minuteQty = moment.utc().diff(sellAt, 'minutes');
-
-            let suggest = await that.suggestSellPrice();
-
-            if (suggest && suggest.price > boughtPrice * 1.04) {
-                console.log("SELL AT " + suggest.price);
-                resolve(1);
-                return;
-            }
-
-            if (suggest && suggest.price < boughtPrice * 0.8) {
-                resolve(0);
-                return;
-            }
-        }
-
-        var currentIndex = macd.length - 2;
-        var current = macd[currentIndex];
-
-        var leftMax = current;
-        var leftMaxIndex = currentIndex;
-
-        for (var i = currentIndex - 1; i >= 0; i--) {
-            if (macd[i].histogram > leftMax.histogram) {
-                leftMax = macd[i];
-                leftMaxIndex = i;
-            } else {
-                break;
-            }
-        }
-
-        // if ((currentIndex - leftMaxIndex + 1) < minPeriod) {
+        // var macd = await that.MACD(histories);
+        // if (!macd || macd.length < 10) {
         //     resolve(0);
         //     return;
         // }
 
-        if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
-            resolve(1);
-            return;
-        }
+        // if (macd[macd.length - 3].histogram > macd[macd.length - 2].histogram
+        //     || macd[macd.length - 2].histogram > macd[macd.length - 1].histogram) {
+        //     resolve(1);
+        //     return;
+        // }
 
-        var diff = leftMax.histogram - current.histogram;
-        let percent = diff / Math.abs(leftMax.histogram);
 
-        resolve(percent);
+        // var currentIndex = macd.length - 2;
+        // var current = macd[currentIndex];
+
+        // var leftMax = current;
+        // var leftMaxIndex = currentIndex;
+
+        // for (var i = currentIndex - 1; i >= 0; i--) {
+        //     if (macd[i].histogram > leftMax.histogram) {
+        //         leftMax = macd[i];
+        //         leftMaxIndex = i;
+        //     } else {
+        //         break;
+        //     }
+        // }
+
+        // // if ((currentIndex - leftMaxIndex + 1) < minPeriod) {
+        // //     resolve(0);
+        // //     return;
+        // // }
+
+        // if ((currentIndex - leftMaxIndex + 1) > maxPeriod) {
+        //     resolve(1);
+        //     return;
+        // }
+
+        // var diff = leftMax.histogram - current.histogram;
+        // let percent = diff / Math.abs(leftMax.histogram);
+
+        // resolve(percent);
     });
 };
 
