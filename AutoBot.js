@@ -432,7 +432,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         var MA25_2 = MA25[MA25.length - 2];
         var MA25_3 = MA25[MA25.length - 3];
 
-        if (MA9_2 > MA9_1 && MA9_3 > MA9_1) {
+        if (MA9_2 > MA9_1) { // && MA9_3 > MA9_1
             console.log("SELL " + that.Symbol + " : REASON 2 : M9 is going down");
             resolve(1);
             return;
