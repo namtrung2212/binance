@@ -399,7 +399,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         }
 
         var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
-        if (suggest.price < boughtPrice * 0.9) {
+        if (suggest.price < boughtPrice * 0.93) {
             resolve(0);
             return;
         }
