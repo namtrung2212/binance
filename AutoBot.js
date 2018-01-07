@@ -405,7 +405,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         }
 
         if (suggest.price > boughtPrice * 1.04) {
-            console.log("SELL" + that.Symbol + " : REASON 1 (benifit > 4%) : " + suggest.price);
+            console.log("SELL " + that.Symbol + " : REASON 1 (benifit > 4%) : " + suggest.price);
             resolve(1);
             return;
         }
@@ -433,13 +433,13 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         var MA25_3 = MA25[MA25.length - 3];
 
         if (MA9_2 > MA9_1 && MA9_3 > MA9_1) {
-            console.log("SELL" + that.Symbol + " : REASON 2 : M11 is going down");
+            console.log("SELL " + that.Symbol + " : REASON 2 : M9 is going down");
             resolve(1);
             return;
         }
 
         if (MA9_1 < MA25_1) {
-            console.log("SELL" + that.Symbol + " : REASON 3 : M11 is going down under MA25");
+            console.log("SELL " + that.Symbol + " : REASON 3 : M9 is going down under MA25");
             resolve(1);
             return;
         }
