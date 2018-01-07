@@ -238,58 +238,49 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         }
 
         var histories = await that.API.chartHistory(that.MACDPeriod);
-
+        var macd = await that.MACD(histories);
         var MA9 = await that.MovingAverage(9, histories);
-        if (!MA9 || MA9.length < 10) {
+        var MA25 = await that.MovingAverage(25, histories);
+
+        if (!macd || macd.length < 10 || !MA9 || MA9.length < 10 || !MA25 || MA25.length < 10) {
             resolve(0);
             return;
         }
+
+        var MACD_1 = macd[macd.length - 1].histogram;
+        var MACD_2 = macd[macd.length - 2].histogram;
+        var MACD_3 = macd[macd.length - 3].histogram;
+        var MACD_4 = macd[macd.length - 4].histogram;
+        var MACD_5 = macd[macd.length - 5].histogram;
+        var MACD_6 = macd[macd.length - 6].histogram;
+
         var MA9_1 = MA9[MA9.length - 1];
         var MA9_2 = MA9[MA9.length - 2];
         var MA9_3 = MA9[MA9.length - 3];
         var MA9_4 = MA9[MA9.length - 4];
         var MA9_5 = MA9[MA9.length - 5];
-        if (MA9_4 >= MA9_3 || MA9_3 >= MA9_2 || MA9_2 >= MA9_1) {
-            resolve(0);
-            return;
-        }
-
-
-        var MA25 = await that.MovingAverage(25, histories);
-        if (!MA25 || MA25.length < 10) {
-            resolve(0);
-            return;
-        }
         var MA25_1 = MA25[MA25.length - 1];
         var MA25_2 = MA25[MA25.length - 2];
         var MA25_3 = MA25[MA25.length - 3];
 
-        if (MA9_1 < MA25_1 || MA9_2 < MA25_2) {
-            resolve(0);
-            return;
-        }
+        var should = true;
+        should = should && (MACD_1 > 0);
+        should = should && (MACD_5 < MACD_4 && MACD_4 < MACD_3 && MACD_3 < MACD_2 && MACD_2 < MACD_1);
+        should = should && (MACD_3 < 0 && MACD_4 < 0 && MACD_5 < 0);
 
-        var diff1 = MA9_1 - MA25_1;
-        var diff2 = MA9_2 - MA25_2;
-        var diff3 = MA9_3 - MA25_3;
-        if (diff1 > 0 && diff1 > diff2 && diff2 > diff3) {
-            resolve(1);
-            return;
-        }
-        resolve(0);
+        should = should && (MA9_2 < MA9_1);
 
-        // var macd = await that.MACD(histories);
-        // if (!macd || macd.length < 10) {
-        //     resolve(0);
+
+        // var diff1 = MA9_1 - MA25_1;
+        // var diff2 = MA9_2 - MA25_2;
+        // var diff3 = MA9_3 - MA25_3;
+        // if (diff1 > diff2 && diff2 > diff3) {
+        //     resolve(1);
         //     return;
         // }
 
-        // var currentIndex = macd.length - 2;
-        // var current = macd[currentIndex];
-        // if (current.histogram <= 0) {
-        //     resolve(0);
-        //     return;
-        // }
+        resolve(should ? 1 : 0);
+
 
         // var leftMin = current;
         // var leftMinIndex = currentIndex;
