@@ -209,11 +209,11 @@ AutoBot.prototype.shouldToBUY = async function () {
         let percent = await that.caclBUYPercent(that.BUY_MINPERIOD);
 
         var should = percent > that.BUY_SIGNAL;
-        if (should) {
+        // if (should) {
 
-            console.log(that.Symbol + " : percent = " + percent);
-            console.log(that.Symbol + " : maxPercent = " + that.BUY_SIGNAL);
-        }
+        //     console.log(that.Symbol + " : percent = " + percent);
+        //     console.log(that.Symbol + " : maxPercent = " + that.BUY_SIGNAL);
+        // }
 
         resolve(should);
     });
