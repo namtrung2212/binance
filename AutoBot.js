@@ -239,32 +239,40 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
 
         var histories = await that.API.chartHistory(that.MACDPeriod);
 
-        var MA11 = await that.MovingAverage(11, histories);
-        if (!MA11 || MA11.length < 10) {
+        var MA9 = await that.MovingAverage(9, histories);
+        if (!MA9 || MA9.length < 10) {
             resolve(0);
             return;
         }
+        var MA9_1 = MA9[MA9.length - 1];
+        var MA9_2 = MA9[MA9.length - 2];
+        var MA9_3 = MA9[MA9.length - 3];
+        var MA9_4 = MA9[MA9.length - 4];
+        var MA9_5 = MA9[MA9.length - 5];
+        if (MA9_4 >= MA9_3 || MA9_3 >= MA9_2 || MA9_2 >= MA9_1) {
+            resolve(0);
+            return;
+        }
+
 
         var MA25 = await that.MovingAverage(25, histories);
         if (!MA25 || MA25.length < 10) {
             resolve(0);
             return;
         }
+        var MA25_1 = MA25[MA25.length - 1];
+        var MA25_2 = MA25[MA25.length - 2];
+        var MA25_3 = MA25[MA25.length - 3];
 
-        if (MA11[MA11.length - 3] >= MA11[MA11.length - 2] || MA11[MA11.length - 2] >= MA11[MA11.length - 1]) {
+        if (MA9_1 < MA25_1 || MA9_2 < MA25_2) {
             resolve(0);
             return;
         }
 
-        if (MA11[MA11.length - 1] < MA25[MA25.length - 1] || MA11[MA11.length - 2] < MA25[MA25.length - 2]) {
-            resolve(0);
-            return;
-        }
-
-        var diff1 = MA11[MA11.length - 1] - MA25[MA25.length - 1];
-        var diff2 = MA11[MA11.length - 2] - MA25[MA25.length - 2];
-        var diff3 = MA11[MA11.length - 3] - MA25[MA25.length - 3];
-        if (diff1 > 0 && diff2 > 0 && diff3 > 0 && diff1 > diff2 && diff2 > diff3) {
+        var diff1 = MA9_1 - MA25_1;
+        var diff2 = MA9_2 - MA25_2;
+        var diff3 = MA9_3 - MA25_3;
+        if (diff1 > 0 && diff1 > diff2 && diff2 > diff3) {
             resolve(1);
             return;
         }
@@ -413,24 +421,33 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var histories = await that.API.chartHistory(that.MACDPeriod);
 
-        var MA11 = await that.MovingAverage(11, histories);
-        if (!MA11 || MA11.length < 10) {
+        var MA9 = await that.MovingAverage(9, histories);
+        if (!MA9 || MA9.length < 10) {
             resolve(0);
             return;
         }
+        var MA9_1 = MA9[MA9.length - 1];
+        var MA9_2 = MA9[MA9.length - 2];
+        var MA9_3 = MA9[MA9.length - 3];
+        var MA9_4 = MA9[MA9.length - 4];
+        var MA9_5 = MA9[MA9.length - 5];
+
         var MA25 = await that.MovingAverage(25, histories);
         if (!MA25 || MA25.length < 10) {
             resolve(0);
             return;
         }
+        var MA25_1 = MA25[MA25.length - 1];
+        var MA25_2 = MA25[MA25.length - 2];
+        var MA25_3 = MA25[MA25.length - 3];
 
-        if (MA11[MA11.length - 2] > MA11[MA11.length - 1]) {
+        if (MA9_2 > MA9_1 && MA9_3 > MA9_1) {
             console.log("SELL" + that.Symbol + " : REASON 2 : M11 is going down");
             resolve(1);
             return;
         }
 
-        if (MA11[MA11.length - 1] < MA25[MA25.length - 1]) {
+        if (MA9_1 < MA25_1) {
             console.log("SELL" + that.Symbol + " : REASON 3 : M11 is going down under MA25");
             resolve(1);
             return;
