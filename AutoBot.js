@@ -438,11 +438,11 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-        if (MA9_1 < MA25_1) {
-            console.log("SELL " + that.Symbol + " : REASON 3 : M9 is going down under MA25");
-            resolve(1);
-            return;
-        }
+        // if (MA9_1 < MA25_1) {
+        //     console.log("SELL " + that.Symbol + " : REASON 3 : M9 is going down under MA25");
+        //     resolve(1);
+        //     return;
+        // }
 
         resolve(0);
 
