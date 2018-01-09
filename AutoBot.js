@@ -269,7 +269,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         should = should && (MACD_3 < 0 && MACD_4 < 0 && MACD_5 < 0);
 
         should = should && (MA9_2 < MA9_1);
-        should = should && (MA9_1 > MA25_1);
+        //   should = should && (MA9_1 > MA25_1);
 
 
         // var diff1 = MA9_1 - MA25_1;
