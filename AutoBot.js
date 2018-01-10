@@ -429,7 +429,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var should = false;
 
-        if (macd[macd.length - 2].histogram < 0) {
+        if (macd[macd.length - 2].histogram < 0 && macd[macd.length - 1].histogram < 0) {
             console.log("SELL " + that.Symbol + " : REASON 1 : MACD < 0");
             should = true;
         }
