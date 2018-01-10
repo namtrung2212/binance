@@ -112,6 +112,50 @@ BinanceAPI.prototype.getCurrentPrice = async function () {
     });
 };
 
+BinanceAPI.prototype.getTradeConfigs = async function (baseCur) {
+
+    var _this = this;
+
+    return new Promise(async function (resolve) {
+
+        var configs = [];
+
+        var list = await _this.getTradeCurrencies(baseCur);
+        list.forEach(function (cur) {
+            configs.push({ trade: cur, base: baseCur, Interval: 30 });
+        });
+
+        resolve(configs);
+
+    }).catch(err => {
+
+    });
+};
+
+BinanceAPI.prototype.getTradeCurrencies = async function (baseCur) {
+
+    return new Promise((resolve) => {
+
+        var _this = this;
+
+        this.binance.prices(function (ticker) {
+
+            var arr = [];
+            Object.keys(ticker).forEach(function (key) {
+
+                var val = ticker[key];
+                if (key.endsWith(baseCur))
+                    arr.push(key.slice(0, key.length - baseCur.length));
+            });
+
+            resolve(arr);
+
+        });
+    });
+};
+
+
+
 BinanceAPI.prototype.convertTo = async function (amount, fromCurrency, toCurrency) {
 
     return new Promise((resolve) => {

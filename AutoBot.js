@@ -16,8 +16,6 @@ function AutoBot(root, current) {
     this.TradeCurrency = config.trade;
     this.Symbol = this.TradeCurrency + this.BaseCurrency;
 
-    this.MACDPeriod = config.MACD;
-
     this.IntervalMinute = config.Interval / 60;
 
     this.API = new BinanceAPI(this.TradeCurrency, this.BaseCurrency);
@@ -43,7 +41,7 @@ module.exports = AutoBot;
 
 AutoBot.prototype.start = function () {
 
-    console.log("Start : " + this.TradeCurrency + "-" + this.BaseCurrency + " with MACD = " + this.MACDPeriod);
+    console.log("Start : " + this.TradeCurrency + "-" + this.BaseCurrency);
 
     console.log("----------------------------------------------------------------------");
 
@@ -214,31 +212,18 @@ AutoBot.prototype.shouldToBUY = async function () {
     });
 };
 
-AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
+AutoBot.prototype.isIncreasingPrice = async function (period) {
 
     var that = this;
     return new Promise(async function (resolve) {
 
-        var lastTrades = await that.API.trades();
-        if (lastTrades == null || lastTrades.length <= 0 || lastTrades[lastTrades.length - 1].isBuyer == true) {
-            resolve(0);
-            return;
-        }
-
-        var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
-        var minuteQty = moment.utc().diff(sellAt, 'minutes');
-        if (minuteQty < 60 * 3) {
-            resolve(0);
-            return;
-        }
-
-        var histories = await that.API.chartHistory(that.MACDPeriod);
+        var histories = await that.API.chartHistory(period);
         var macd = await that.MACD(histories);
         var MA9 = await that.MovingAverage(9, histories);
         var MA25 = await that.MovingAverage(25, histories);
 
         if (!macd || macd.length < 10 || !MA9 || MA9.length < 10 || !MA25 || MA25.length < 10) {
-            resolve(0);
+            resolve(false);
             return;
         }
 
@@ -254,28 +239,44 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
         var MA9_3 = MA9[MA9.length - 3];
         var MA9_4 = MA9[MA9.length - 4];
         var MA9_5 = MA9[MA9.length - 5];
+
         var MA25_1 = MA25[MA25.length - 1];
         var MA25_2 = MA25[MA25.length - 2];
         var MA25_3 = MA25[MA25.length - 3];
 
         var should = true;
         should = should && (MACD_1 > 0);
-        // should = should && (MACD_5 < MACD_4 && MACD_4 < MACD_3 && MACD_3 < MACD_2 && MACD_2 < MACD_1);
-        should = should && (MACD_4 < MACD_3 && MACD_3 < MACD_2 && MACD_2 < MACD_1);
-        should = should && (MACD_3 < 0 || MACD_4 < 0 || MACD_5 < 0);
-
+        should = should && (MACD_3 < MACD_2 && MACD_2 < MACD_1);
         should = should && (MA9_2 < MA9_1);
-        //   should = should && (MA9_1 > MA25_1);
+        resolve(should);
+    });
+};
+
+AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
+
+    var that = this;
+    return new Promise(async function (resolve) {
+
+        var lastTrades = await that.API.trades();
+        if (lastTrades == null || lastTrades.length <= 0 || lastTrades[lastTrades.length - 1].isBuyer == true) {
+            resolve(0);
+            return;
+        }
+
+        var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
+        var minuteQty = moment.utc().diff(sellAt, 'minutes');
+        if (minuteQty < 30) {
+            resolve(0);
+            return;
+        }
+
+        var isOK5m = await that.isIncreasingPrice("5m");
+        var isOK15m = await that.isIncreasingPrice("15m");
+        var isOK30m = await that.isIncreasingPrice("30m");
 
 
-        // var diff1 = MA9_1 - MA25_1;
-        // var diff2 = MA9_2 - MA25_2;
-        // var diff3 = MA9_3 - MA25_3;
-        // if (diff1 > diff2 && diff2 > diff3) {
-        //     resolve(1);
-        //     return;
-        // }
-
+        var should = true;
+        should = should && isOK5m && isOK15m && isOK30m;
         resolve(should ? 1 : 0);
 
 
@@ -369,6 +370,47 @@ AutoBot.prototype.shouldToSELL_CheckOtherBots = async function () {
     });
 };
 
+AutoBot.prototype.isDecreasingPrice = async function (period) {
+
+    var that = this;
+    return new Promise(async function (resolve) {
+
+        var histories = await that.API.chartHistory(period);
+        var macd = await that.MACD(histories);
+        var MA9 = await that.MovingAverage(9, histories);
+        var MA25 = await that.MovingAverage(25, histories);
+
+        if (!macd || macd.length < 10 || !MA9 || MA9.length < 10 || !MA25 || MA25.length < 10) {
+            resolve(false);
+            return;
+        }
+
+        var MACD_1 = macd[macd.length - 1].histogram;
+        var MACD_2 = macd[macd.length - 2].histogram;
+        var MACD_3 = macd[macd.length - 3].histogram;
+        var MACD_4 = macd[macd.length - 4].histogram;
+        var MACD_5 = macd[macd.length - 5].histogram;
+        var MACD_6 = macd[macd.length - 6].histogram;
+
+        var MA9_1 = MA9[MA9.length - 1];
+        var MA9_2 = MA9[MA9.length - 2];
+        var MA9_3 = MA9[MA9.length - 3];
+        var MA9_4 = MA9[MA9.length - 4];
+        var MA9_5 = MA9[MA9.length - 5];
+
+        var MA25_1 = MA25[MA25.length - 1];
+        var MA25_2 = MA25[MA25.length - 2];
+        var MA25_3 = MA25[MA25.length - 3];
+
+        var should = true;
+
+        should = should || (MACD_1 < 0 && MACD_2 < 0);
+        should = should || (MA9_2 > MA9_1);
+
+        resolve(should);
+    });
+};
+
 AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
     var that = this;
@@ -383,7 +425,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
         var minuteQty = moment.utc().diff(sellAt, 'minutes');
-        if (minuteQty < 60 * 3) {
+        if (minuteQty < 30) {
             resolve(0);
             return;
 
@@ -407,54 +449,14 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         //     return;
         // }
 
-        var histories = await that.API.chartHistory(that.MACDPeriod);
-        var macd = await that.MACD(histories);
-        var MA9 = await that.MovingAverage(9, histories);
-        var MA25 = await that.MovingAverage(25, histories);
+        var isOK5m = await that.isDecreasingPrice("5m");
+        var isOK15m = await that.isDecreasingPrice("15m");
+        var isOK30m = await that.isDecreasingPrice("30m");
 
-        if (!macd || macd.length < 10 || !MA9 || MA9.length < 10 || !MA25 || MA25.length < 10) {
-            resolve(0);
-            return;
-        }
 
-        var MA9_1 = MA9[MA9.length - 1];
-        var MA9_2 = MA9[MA9.length - 2];
-        var MA9_3 = MA9[MA9.length - 3];
-        var MA9_4 = MA9[MA9.length - 4];
-        var MA9_5 = MA9[MA9.length - 5];
-
-        var MA25_1 = MA25[MA25.length - 1];
-        var MA25_2 = MA25[MA25.length - 2];
-        var MA25_3 = MA25[MA25.length - 3];
-
-        var should = false;
-
-        if (macd[macd.length - 2].histogram < 0 && macd[macd.length - 1].histogram < 0) {
-            console.log("SELL " + that.Symbol + " : REASON 1 : MACD < 0");
-            should = true;
-        }
-
-        if (MA9_2 > MA9_1) {
-            console.log("SELL " + that.Symbol + " : REASON 2 : M9 is going down");
-            should = true;
-        }
-
-        // if (MA9_1 < MA25_1) {
-        //     console.log("SELL " + that.Symbol + " : REASON 3 : M9 is going down under MA25");
-        //     resolve(1);
-        //     return;
-        // }
-
+        var should = true;
+        should = should && isOK5m && isOK15m && isOK30m;
         resolve(should ? 1 : 0);
-
-
-        // if (macd[macd.length - 3].histogram > macd[macd.length - 2].histogram
-        //     || macd[macd.length - 2].histogram > macd[macd.length - 1].histogram) {
-        //     resolve(1);
-        //     return;
-        // }
-
-
 
         // var leftMax = current;
         // var leftMaxIndex = currentIndex;

@@ -2,7 +2,15 @@
 
 const BinanceAPI = require("./BinanceAPI");
 
-var API = new BinanceAPI("ETH", "USDT");
+var API = new BinanceAPI();
+
+API.getTradeConfigs("BTC").then(function (currencies) {
+
+    currencies.forEach(function (curr) {
+        console.log(curr);
+    });
+
+});
 
 
 // API.getTotalBalanceInBase().then(function (obj) {
@@ -36,8 +44,8 @@ var moment = require('moment');
 
 
 
-API.getCurrentPrice().then(function (obj) {
+// API.getCurrentPrice().then(function (obj) {
 
-    console.log(obj);
-});
+//     console.log(obj);
+// });
 

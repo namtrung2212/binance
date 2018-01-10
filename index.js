@@ -1,37 +1,47 @@
 
 const AutoBot = require("./AutoBot");
+const BinanceAPI = require("./BinanceAPI");
+
 
 var root = {};
 
 root.botConfigs = [
 
-    // { trade: "BTC", base: "USDT", MACD: "15m", Interval: 30 },
-    { trade: "ETH", base: "USDT", MACD: "15m", Interval: 30 },
-    { trade: "LTC", base: "USDT", MACD: "15m", Interval: 30 },
-    { trade: "BNB", base: "USDT", MACD: "15m", Interval: 30 },
-    { trade: "NEO", base: "USDT", MACD: "15m", Interval: 30 },
-    { trade: "BCC", base: "USDT", MACD: "15m", Interval: 30 },
+    // { trade: "BTC", base: "USDT", Interval: 30 },
+    { trade: "ETH", base: "USDT", Interval: 30 },
+    { trade: "LTC", base: "USDT", Interval: 30 },
+    { trade: "BNB", base: "USDT", Interval: 30 },
+    { trade: "NEO", base: "USDT", Interval: 30 },
+    { trade: "BCC", base: "USDT", Interval: 30 }
 
 
-    { trade: "EVX", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "TRX", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "MANA", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "BQX", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "POE", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "BRD", base: "BTC", MACD: "15m", Interval: 30 },
+    // { trade: "EVX", base: "BTC", Interval: 30 },
+    // { trade: "TRX", base: "BTC", Interval: 30 },
+    // { trade: "MANA", base: "BTC", Interval: 30 },
+    // { trade: "BQX", base: "BTC", Interval: 30 },
+    // { trade: "POE", base: "BTC", Interval: 30 },
+    // { trade: "BRD", base: "BTC", Interval: 30 },
 
-    { trade: "XRP", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "ETC", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "XVG", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "ADA", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "CTR", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "AMB", base: "BTC", MACD: "15m", Interval: 30 },
-    { trade: "SNT", base: "BTC", MACD: "15m", Interval: 30 }
+    // { trade: "XRP", base: "BTC", Interval: 30 },
+    // { trade: "ETC", base: "BTC", Interval: 30 },
+    // { trade: "XVG", base: "BTC", Interval: 30 },
+    // { trade: "ADA", base: "BTC", Interval: 30 },
+    // { trade: "CTR", base: "BTC", Interval: 30 },
+    // { trade: "AMB", base: "BTC", Interval: 30 },
+    // { trade: "SNT", base: "BTC", Interval: 30 }
 
-    // { trade: "XRP", base: "ETH", MACD: "15m", Interval: 30 },
-    // { trade: "ETC", base: "ETH", MACD: "15m", Interval: 30 }
+    // { trade: "XRP", base: "ETH", Interval: 30 },
+    // { trade: "ETC", base: "ETH", Interval: 30 }
 
 ];
+
+var API = new BinanceAPI();
+API.getTradeConfigs("BTC").then(function (currencies) {
+    currencies.forEach(function (curr) {
+        root.botConfigs.push(curr)
+    });
+
+});
 
 root.config = {
 
