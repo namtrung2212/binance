@@ -232,7 +232,7 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
 
         var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
         var minuteQty = moment.utc().diff(sellAt, 'minutes');
-        if (minuteQty < 15) {
+        if (minuteQty < 60 * 3) {
             resolve(0);
             return;
         }
@@ -387,7 +387,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
         var minuteQty = moment.utc().diff(sellAt, 'minutes');
-        if (minuteQty < 15) {
+        if (minuteQty < 60 * 3) {
             resolve(0);
             return;
 
