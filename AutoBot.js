@@ -209,11 +209,6 @@ AutoBot.prototype.shouldToBUY = async function () {
         let percent = await that.caclBUYPercent(that.BUY_MINPERIOD);
 
         var should = percent > that.BUY_SIGNAL;
-        // if (should) {
-
-        //     console.log(that.Symbol + " : percent = " + percent);
-        //     console.log(that.Symbol + " : maxPercent = " + that.BUY_SIGNAL);
-        // }
 
         resolve(should);
     });
@@ -265,8 +260,9 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
 
         var should = true;
         should = should && (MACD_1 > 0);
-        should = should && (MACD_5 < MACD_4 && MACD_4 < MACD_3 && MACD_3 < MACD_2 && MACD_2 < MACD_1);
-        should = should && (MACD_3 < 0 && MACD_4 < 0 && MACD_5 < 0);
+        // should = should && (MACD_5 < MACD_4 && MACD_4 < MACD_3 && MACD_3 < MACD_2 && MACD_2 < MACD_1);
+        should = should && (MACD_4 < MACD_3 && MACD_3 < MACD_2 && MACD_2 < MACD_1);
+        should = should && (MACD_3 < 0 || MACD_4 < 0 || MACD_5 < 0);
 
         should = should && (MA9_2 < MA9_1);
         //   should = should && (MA9_1 > MA25_1);
@@ -400,43 +396,47 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         }
 
         var boughtPrice = parseFloat(lastTrades[lastTrades.length - 1].price);
-        if (suggest.price < boughtPrice * 0.93) {
+        if (suggest.price < boughtPrice * 0.9) {
             resolve(0);
             return;
         }
 
-        if (suggest.price > boughtPrice * 1.04) {
-            console.log("SELL " + that.Symbol + " : REASON 1 (benifit > 4%) : " + suggest.price);
-            resolve(1);
-            return;
-        }
+        // if (suggest.price > boughtPrice * 1.04) {
+        //     console.log("SELL " + that.Symbol + " : REASON 1 (benifit > 4%) : " + suggest.price);
+        //     resolve(1);
+        //     return;
+        // }
 
         var histories = await that.API.chartHistory(that.MACDPeriod);
-
+        var macd = await that.MACD(histories);
         var MA9 = await that.MovingAverage(9, histories);
-        if (!MA9 || MA9.length < 10) {
+        var MA25 = await that.MovingAverage(25, histories);
+
+        if (!macd || macd.length < 10 || !MA9 || MA9.length < 10 || !MA25 || MA25.length < 10) {
             resolve(0);
             return;
         }
+
         var MA9_1 = MA9[MA9.length - 1];
         var MA9_2 = MA9[MA9.length - 2];
         var MA9_3 = MA9[MA9.length - 3];
         var MA9_4 = MA9[MA9.length - 4];
         var MA9_5 = MA9[MA9.length - 5];
 
-        var MA25 = await that.MovingAverage(25, histories);
-        if (!MA25 || MA25.length < 10) {
-            resolve(0);
-            return;
-        }
         var MA25_1 = MA25[MA25.length - 1];
         var MA25_2 = MA25[MA25.length - 2];
         var MA25_3 = MA25[MA25.length - 3];
 
-        if (MA9_2 > MA9_1) { // && MA9_3 > MA9_1
+        var should = false;
+
+        if (macd[macd.length - 2].histogram < 0) {
+            console.log("SELL " + that.Symbol + " : REASON 1 : MACD < 0");
+            should = true;
+        }
+
+        if (MA9_2 > MA9_1) {
             console.log("SELL " + that.Symbol + " : REASON 2 : M9 is going down");
-            resolve(1);
-            return;
+            should = true;
         }
 
         // if (MA9_1 < MA25_1) {
@@ -445,13 +445,8 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         //     return;
         // }
 
-        resolve(0);
+        resolve(should ? 1 : 0);
 
-        // var macd = await that.MACD(histories);
-        // if (!macd || macd.length < 10) {
-        //     resolve(0);
-        //     return;
-        // }
 
         // if (macd[macd.length - 3].histogram > macd[macd.length - 2].histogram
         //     || macd[macd.length - 2].histogram > macd[macd.length - 1].histogram) {
@@ -460,8 +455,6 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         // }
 
 
-        // var currentIndex = macd.length - 2;
-        // var current = macd[currentIndex];
 
         // var leftMax = current;
         // var leftMaxIndex = currentIndex;
