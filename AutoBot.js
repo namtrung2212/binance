@@ -402,7 +402,7 @@ AutoBot.prototype.isDecreasingPrice = async function (period) {
         var MA25_2 = MA25[MA25.length - 2];
         var MA25_3 = MA25[MA25.length - 3];
 
-        var should = true;
+        var should = false;
 
         should = should || (MACD_1 < 0 && MACD_2 < 0);
         should = should || (MA9_2 > MA9_1);
