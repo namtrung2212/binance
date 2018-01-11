@@ -2,16 +2,22 @@
 
 const BinanceAPI = require("./BinanceAPI");
 
-var API = new BinanceAPI();
+var API = new BinanceAPI("BTC", "USDT");
 
-API.getTradeConfigs("BTC").then(function (currencies) {
+// API.getTradeConfigs("BTC").then(function (currencies) {
 
-    currencies.forEach(function (curr) {
-        console.log(curr);
-    });
+//     currencies.forEach(function (curr) {
+//         console.log(curr);
+//     });
 
+// });
+
+
+
+API.DepthSelling().then(function (obj) {
+
+    console.log(obj);
 });
-
 
 // API.getTotalBalanceInBase().then(function (obj) {
 

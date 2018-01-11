@@ -246,8 +246,12 @@ AutoBot.prototype.isIncreasingPrice = async function (period) {
 
         var should = true;
         should = should && (MACD_1 > 0);
-        should = should && (MACD_3 < MACD_2 && MACD_2 < MACD_1);
+        should = should && (MACD_2 < MACD_1);
         should = should && (MA9_2 < MA9_1);
+
+        if (period == "5m")
+            should = should && (MACD_3 < MACD_2);
+
         resolve(should);
     });
 };
@@ -404,7 +408,11 @@ AutoBot.prototype.isDecreasingPrice = async function (period) {
 
         var should = false;
 
-        should = should || (MACD_1 < 0 && MACD_2 < 0);
+        if (period == "5m")
+            should = should || (MACD_1 <= 0 && MACD_2 <= 0);
+        else
+            should = should || (MACD_1 <= 0);
+
         should = should || (MA9_2 > MA9_1);
 
         resolve(should);
@@ -443,19 +451,19 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
             return;
         }
 
-        // if (suggest.price > boughtPrice * 1.04) {
-        //     console.log("SELL " + that.Symbol + " : REASON 1 (benifit > 4%) : " + suggest.price);
-        //     resolve(1);
-        //     return;
-        // }
+        if (suggest.price > boughtPrice * 1.02 && minuteQty > 30 * 1) {
+            console.log("SELL " + that.Symbol + " : REASON 1 (benifit > 2%) : " + suggest.price);
+            resolve(1);
+            return;
+        }
 
         var isOK5m = await that.isDecreasingPrice("5m");
         var isOK15m = await that.isDecreasingPrice("15m");
-        var isOK30m = await that.isDecreasingPrice("30m");
+        //  var isOK30m = await that.isDecreasingPrice("30m");
 
 
         var should = true;
-        should = should && isOK5m && isOK15m && isOK30m;
+        should = should && isOK5m && isOK15m;// && isOK30m;
         resolve(should ? 1 : 0);
 
         // var leftMax = current;
@@ -516,7 +524,7 @@ AutoBot.prototype.suggestBuyPrice = async function () {
     for (var i = 1; i < sellings.length; i++) {
 
         let selling = sellings[i];
-        if (selling.price && selling.price < 0.95 * firtPrice) {
+        if (selling.price && selling.price <= firtPrice) {
 
             let remain = (wannaTrade - tradableAmt);
             if (remain <= 0)
@@ -576,7 +584,7 @@ AutoBot.prototype.suggestSellPrice = async function () {
     for (var i = 1; i < buyings.length; i++) {
 
         let buying = buyings[i];
-        if (buying.price && buying.price > 0.95 * firtPrice) {
+        if (buying.price && buying.price >= firtPrice) {
 
             let remain = (wannaTrade - tradableAmt);
             if (remain <= 0)
