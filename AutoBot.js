@@ -433,7 +433,7 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
 
         var sellAt = moment.unix(parseFloat(lastTrades[lastTrades.length - 1].time / 1000));
         var minuteQty = moment.utc().diff(sellAt, 'minutes');
-        if (minuteQty < 30) {
+        if (minuteQty < 10) {
             resolve(0);
             return;
 
@@ -458,12 +458,12 @@ AutoBot.prototype.caclSElLPercent = async function (minPeriod, maxPeriod) {
         }
 
         var isOK5m = await that.isDecreasingPrice("5m");
-        var isOK15m = await that.isDecreasingPrice("15m");
+        // var isOK15m = await that.isDecreasingPrice("15m");
         //  var isOK30m = await that.isDecreasingPrice("30m");
 
 
         var should = true;
-        should = should && isOK5m && isOK15m;// && isOK30m;
+        should = should && isOK5m;// && isOK15m;// && isOK30m;
         resolve(should ? 1 : 0);
 
         // var leftMax = current;
