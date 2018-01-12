@@ -276,11 +276,11 @@ AutoBot.prototype.caclBUYPercent = async function (minPeriod) {
 
         var isOK5m = await that.isIncreasingPrice("5m");
         var isOK15m = await that.isIncreasingPrice("15m");
-        var isOK30m = await that.isIncreasingPrice("30m");
+        //  var isOK30m = await that.isIncreasingPrice("30m");
 
 
         var should = true;
-        should = should && isOK5m && isOK15m && isOK30m;
+        should = should && isOK5m && isOK15m;// && isOK30m;
         resolve(should ? 1 : 0);
 
 
